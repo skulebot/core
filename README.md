@@ -11,7 +11,7 @@ $ pip install -r requirements/dev.txt
 ```
 
 #### **Step 3 Set Environment Variables**
-Creat a `.env` file at the project root directory and place you token in place of `<TOKEN>`
+Creat a `.env` file at the project root directory and place your token in place of `<TOKEN>`
 
 **`skulebot/.env`**
 ```shell
