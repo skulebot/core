@@ -1,2 +1,3 @@
 -r common.txt
+pre-commit
 python-dotenv==1.0.0
