@@ -1,12 +1,13 @@
-import os
+"""Setup and run a simple echo bot."""
 import logging
+import os
 
 if os.getenv("ENV", "development") == "development":
     from dotenv import load_dotenv
 
     load_dotenv()
 
-from telegram import ForceReply, Update
+from telegram import Update
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -51,7 +52,7 @@ def main() -> None:
     # on non command i.e message - echo the message on Telegram
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
-    # in 'development' enviroments we run the bot on polling, in 'production' we will we a webhook
+    # in 'development' enviroments run the bot on polling, in 'production' use a webhook
     ENV = os.getenv("ENV", "development")
     if ENV == "development":
         # Run the bot until the user presses Ctrl-C
