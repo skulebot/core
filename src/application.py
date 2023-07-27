@@ -1,89 +1,47 @@
-"""Build the application, register handlers and run.
-
-Usage:
-    ```python
-    application.initialize()
-    application.register_handlers()
-    application.run()
-    ```
-"""
+"""Contains wrapper functions for creating, running and register handlers
+for an application."""
 import os
 
 from telegram import Update
-from telegram.ext import (
-    Application,
-    CommandHandler,
-    ContextTypes,
-    MessageHandler,
-    filters,
-)
+from telegram.ext import Application, CommandHandler, MessageHandler, filters
 
-_application: Application | None = None
+import src.commands as commands
+from src.errors import MissingVariableError
 
 
-def _set_application(application: Application):
-    global _application
-    _application = application
-
-
-def _get_application():
-    global _application
-    if _application is None:
-        raise RuntimeError("application is not initialized yet.")
-    return _application
-
-
-def initialize():
-    """Initialize Application
-
-    Builds the application and sets the bot token
-    """
-
-    # Prevent initializing application twice
-    global _application
-    if _application:
-        return
-
+def create() -> Application:
+    """Creates an instance of `telegram.ext.Application` and configures it."""
     BOT_TOKEN = os.getenv("BOT_TOKEN")
-    if BOT_TOKEN is None:
-        raise RuntimeError("BOT_TOKEN is not set")
+    if not BOT_TOKEN:
+        raise MissingVariableError("BOT_TOKEN")
     application = Application.builder().token(BOT_TOKEN).build()
-    _set_application(application)
+    return application
 
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a message when the command /start is issued."""
-    user = update.effective_user
-    await update.message.reply_html(
-        rf"Hi {user.mention_html()}!",
+def register_handlers(application: Application):
+    """Registers `CommandHandler`s, `ConversationHandler`s ...etc."""
+
+    application.add_handler(CommandHandler(["start", "profile"], commands.profile))
+    application.add_handler(
+        MessageHandler(filters.TEXT & ~filters.COMMAND, commands.echo)
     )
 
 
-async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Echo the user message."""
-    await update.message.reply_text(update.message.text)
-
-
-def register_handlers():
-    application = _get_application()
-    # on different commands - answer in Telegram
-    application.add_handler(CommandHandler("start", start))
-
-    # on non command i.e message - echo the message on Telegram
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
-
-
-def run() -> None:
-    """Run the bot."""
-    application = _get_application()
-
+def run(application: Application):
+    """Runs the application.
+    Will use `run_polling` in development environments, and `run_webhook`
+    in production"""
     if os.getenv("ENV") == "production":
         PORT = int(os.getenv("PORT", "8443"))
+        WEBHOOK_SERCRET_TOKEN = int(os.getenv("WEBHOOK_SECRET_TOKEN"))
+        WEBHOOK_URL = int(os.getenv("WEBHOOK_URL"))
+        if not WEBHOOK_URL:
+            raise MissingVariableError("WEBHOOK_URL")
         application.run_webhook(
             listen="0.0.0.0",
             port=PORT,
-            secret_token=os.getenv("WEBHOOK_SECRET_TOKEN"),
-            webhook_url=os.getenv("WEBHOOK_URL"),
+            secret_token=WEBHOOK_SERCRET_TOKEN,
+            webhook_url=WEBHOOK_URL,
         )
     else:
         # Run the bot until the user presses Ctrl-C

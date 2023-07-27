@@ -21,9 +21,9 @@ logger = logging.getLogger(__name__)
 
 
 def main() -> None:
-    application.initialize()
-    application.register_handlers()
-    application.run()
+    app = application.create()
+    application.register_handlers(app)
+    application.run(app)
 
 
 if __name__ == "__main__":
