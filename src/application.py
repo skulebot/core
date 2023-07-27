@@ -3,14 +3,15 @@ for an application."""
 import os
 
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters
+from telegram.ext import Application
 
-import src.commands as commands
+from src import commands, conversations
 from src.errors import MissingVariableError
 
 
 def create() -> Application:
-    """Creates an instance of `telegram.ext.Application` and configures it."""
+    """Creates an instance of `telegram.ext.Application` and configures it.
+    Raise MissingVariableError if no bot token present in .env"""
     BOT_TOKEN = os.getenv("BOT_TOKEN")
     if not BOT_TOKEN:
         raise MissingVariableError("BOT_TOKEN")
@@ -21,10 +22,8 @@ def create() -> Application:
 def register_handlers(application: Application):
     """Registers `CommandHandler`s, `ConversationHandler`s ...etc."""
 
-    application.add_handler(CommandHandler(["start", "profile"], commands.profile))
-    application.add_handler(
-        MessageHandler(filters.TEXT & ~filters.COMMAND, commands.echo)
-    )
+    application.add_handler(commands.profile_command)
+    application.add_handler(conversations.profile_conv)
 
 
 def run(application: Application):
@@ -33,7 +32,7 @@ def run(application: Application):
     in production"""
     if os.getenv("ENV") == "production":
         PORT = int(os.getenv("PORT", "8443"))
-        WEBHOOK_SERCRET_TOKEN = int(os.getenv("WEBHOOK_SECRET_TOKEN"))
+        WEBHOOK_SERCRET_TOKEN = os.getenv("WEBHOOK_SECRET_TOKEN")
         WEBHOOK_URL = int(os.getenv("WEBHOOK_URL"))
         if not WEBHOOK_URL:
             raise MissingVariableError("WEBHOOK_URL")
