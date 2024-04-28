@@ -1,6 +1,7 @@
 __all__ = (
     "AcademicYear",
     "AccessRequest",
+    "Assignment",
     "Base",
     "Course",
     "Department",
@@ -39,6 +40,7 @@ from .department import Department
 from .enrollment import Enrollment
 from .file import File
 from .material import (
+    Assignment,
     HasNumber,
     Lab,
     Lecture,

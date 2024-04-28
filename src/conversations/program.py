@@ -14,10 +14,7 @@ from telegram.ext import (
 )
 
 from src import buttons, constants, messages, queries
-from src.models import Program, RoleName
-from src.models.course import Course
-from src.models.program_semester import ProgramSemester
-from src.models.program_semester_course import ProgramSemesterCourse
+from src.models import Course, Program, ProgramSemester, ProgramSemesterCourse, RoleName
 from src.utils import Pager, build_menu, roles, session
 
 URLPREFIX = constants.PROGRAM_

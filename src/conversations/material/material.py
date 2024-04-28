@@ -56,17 +56,18 @@ from src.conversations.material import (
     publish,
     sendall,
 )
-from src.models import Enrollment, Material, MaterialType
-from src.models.file import File
-from src.models.material import (
+from src.models import (
     Assignment,
+    Enrollment,
+    File,
     HasNumber,
     Lecture,
-    RefFilesMixin,
+    Material,
+    MaterialType,
     Review,
     SingleFile,
-    get_material_class,
 )
+from src.models.material import RefFilesMixin, get_material_class
 from src.utils import build_menu, session, user_mode
 
 

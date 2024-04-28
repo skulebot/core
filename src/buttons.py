@@ -24,11 +24,11 @@ from src.models import (
     ProgramSemesterCourse,
     Review,
     Semester,
+    SettingKey,
     SingleFile,
     Status,
 )
 from src.models.material import REVIEW_TYPES
-from src.models.setting import SettingKey
 from src.utils import build_menu
 
 calendar.setfirstweekday(6)

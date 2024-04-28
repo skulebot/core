@@ -14,8 +14,7 @@ from telegram.ext import (
 
 from src import buttons, constants, messages, queries
 from src.conversations.material import material
-from src.models import MaterialType, RoleName
-from src.models.user_optional_course import UserOptionalCourse
+from src.models import MaterialType, RoleName, UserOptionalCourse
 from src.utils import build_menu, roles, session
 
 URLPREFIX = constants.UPDATE_MATERIALS_

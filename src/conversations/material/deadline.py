@@ -7,7 +7,7 @@ from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 
 from src import buttons, constants, messages
-from src.models.material import Assignment
+from src.models import Assignment
 from src.utils import session
 
 TYPES = Assignment.__mapper_args__.get("polymorphic_identity")

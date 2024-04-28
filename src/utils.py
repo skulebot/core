@@ -9,8 +9,7 @@ from telegram.ext import ContextTypes
 
 from src import constants
 from src.database import Session
-from src.models import Role, RoleName, SettingKey, User, user_role
-from src.models.setting import Setting
+from src.models import Role, RoleName, Setting, SettingKey, User, user_role
 
 
 def send_action(action):

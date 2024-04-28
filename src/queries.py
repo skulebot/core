@@ -5,20 +5,22 @@ from sqlalchemy.orm import Session
 
 from src.models import (
     AcademicYear,
+    AccessRequest,
+    Course,
     Department,
     Enrollment,
+    Lecture,
+    Material,
     Program,
     ProgramSemester,
+    ProgramSemesterCourse,
     Role,
     RoleName,
     Semester,
+    Status,
     User,
+    UserOptionalCourse,
 )
-from src.models.access_request import AccessRequest, Status
-from src.models.course import Course
-from src.models.material import Lecture, Material
-from src.models.program_semester_course import ProgramSemesterCourse
-from src.models.user_optional_course import UserOptionalCourse
 
 
 def semesters(

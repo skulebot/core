@@ -6,20 +6,20 @@ from telegram.constants import InputMediaType
 
 from src import constants
 from src.constants import LEVELS
-from src.models import Enrollment
-from src.models.academic_year import AcademicYear
-from src.models.course import Course
-from src.models.file import File
-from src.models.material import (
+from src.models import (
+    AcademicYear,
     Assignment,
+    Course,
+    Enrollment,
+    File,
     HasNumber,
     Material,
     MaterialType,
+    Program,
     Review,
+    Semester,
     SingleFile,
 )
-from src.models.program import Program
-from src.models.semester import Semester
 from src.utils import user_mode
 
 

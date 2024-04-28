@@ -7,17 +7,16 @@ from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 
 from src import buttons, constants, messages
-from src.models import HasNumber
-from src.models.enrollment import Enrollment
-from src.models.file import File
-from src.models.material import (
-    REVIEW_TYPES,
+from src.models import (
+    Enrollment,
+    File,
+    HasNumber,
     MaterialType,
     Review,
     SingleFile,
-    get_material_class,
+    User,
 )
-from src.models.user import User
+from src.models.material import REVIEW_TYPES, get_material_class
 from src.utils import build_menu, session
 
 

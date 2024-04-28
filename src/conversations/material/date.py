@@ -6,7 +6,7 @@ from telegram import InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 from src import buttons, constants, messages
-from src.models.material import Material, Review
+from src.models import Material, Review
 from src.utils import session
 
 TYPES = Review.__mapper_args__.get("polymorphic_identity")

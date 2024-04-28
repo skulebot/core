@@ -5,8 +5,8 @@ from telegram import InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 from src import buttons, constants, messages
-from src.models import HasNumber
-from src.models.material import Material, __classes__
+from src.models import HasNumber, Material
+from src.models.material import __classes__
 from src.utils import session
 
 TYPES = "|".join(

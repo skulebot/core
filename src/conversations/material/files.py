@@ -6,9 +6,8 @@ from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 
 from src import buttons, constants, messages
-from src.models.file import File
+from src.models import File, User
 from src.models.material import get_material_class
-from src.models.user import User
 from src.utils import build_menu, session, user_mode
 
 

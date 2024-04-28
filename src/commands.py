@@ -4,8 +4,7 @@ from telegram.constants import ParseMode
 from telegram.ext import CommandHandler, ContextTypes
 
 from src import buttons, constants, messages, queries
-from src.models import RoleName
-from src.models.access_request import Status
+from src.models import RoleName, Status
 from src.utils import build_menu, roles, session
 
 # ------------------------------- Callbacks ---------------------------
