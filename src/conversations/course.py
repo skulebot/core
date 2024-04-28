@@ -7,8 +7,7 @@ from telegram.ext import CallbackQueryHandler, ContextTypes, ConversationHandler
 
 from src import buttons, commands, constants, messages, queries
 from src.conversations.material import material
-from src.models import MaterialType
-from src.models.user_optional_course import UserOptionalCourse
+from src.models import MaterialType, UserOptionalCourse
 from src.utils import build_menu, session
 
 # ------------------------------- entry_points ---------------------------
