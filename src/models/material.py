@@ -124,7 +124,7 @@ class Assignment(HasId, Material, HasNumber, RefFilesMixin):
 
     MEDIA_TYPES: Sequence[InputMediaType] = (
         InputMediaType.DOCUMENT,
-        InputMediaType.VIDEO,
+        InputMediaType.PHOTO,
     )
 
 
