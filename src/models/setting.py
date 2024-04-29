@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING
 from sqlalchemy import JSON, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from src.models import MaterialType
+
 from .base import Base
 
 if TYPE_CHECKING:
@@ -16,14 +18,14 @@ class SettingKey(enum.Enum):
 
     # Enum members with (key, default value) as their values
     # Notification settings will automatically prepend the prefix
-    LECTURE = (NOTIFICATION_PREFIX + "lecture", True)
-    TUTORIAL = (NOTIFICATION_PREFIX + "tutorial", True)
-    LAB = (NOTIFICATION_PREFIX + "lab", True)
-    REFERENCE = (NOTIFICATION_PREFIX + "reference", True)
-    SHEET = (NOTIFICATION_PREFIX + "sheet", True)
-    TOOL = (NOTIFICATION_PREFIX + "tool", True)
-    ASSIGNMENT = (NOTIFICATION_PREFIX + "assignment", True)
-    REVIEW = (NOTIFICATION_PREFIX + "review", True)
+    LECTURE = (NOTIFICATION_PREFIX + MaterialType.LECTURE, True)
+    TUTORIAL = (NOTIFICATION_PREFIX + MaterialType.TUTORIAL, True)
+    LAB = (NOTIFICATION_PREFIX + MaterialType.LAB, True)
+    REFERENCE = (NOTIFICATION_PREFIX + MaterialType.REFERENCE, True)
+    SHEET = (NOTIFICATION_PREFIX + MaterialType.SHEET, True)
+    TOOL = (NOTIFICATION_PREFIX + MaterialType.TOOL, True)
+    ASSIGNMENT = (NOTIFICATION_PREFIX + MaterialType.ASSIGNMENT, True)
+    REVIEW = (NOTIFICATION_PREFIX + MaterialType.REVIEW, True)
 
     def __init__(self, key, default=None):
         self.key: str = key
