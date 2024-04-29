@@ -433,35 +433,24 @@ def enrollments_list(
 
 
 # TODO: add docs
+def material(url: str, material: Material):
+    type_: str = material.type.capitalize()
+    text: str = None
+    if isinstance(material, HasNumber):
+        text = type_ + " " + str(material.number)
+    elif isinstance(material, SingleFile):
+        text = material.file.name
+    elif isinstance(material, Review):
+        text = material.get_name() + (" " + str(d.year) if (d := material.date) else "")
+    return InlineKeyboardButton(
+        text,
+        callback_data=f"{url}/{material.id}",
+    )
+
+
+# TODO: add docs
 def material_list(url: str, materials: List[Material]):
-    buttons = []
-    if len(materials) == 0:
-        return buttons
-    for m in materials:
-        i_type = m.type.capitalize()
-        if isinstance(m, HasNumber):
-            buttons.append(
-                InlineKeyboardButton(
-                    i_type + " " + str(m.number),
-                    callback_data=f"{url}/{m.id}",
-                )
-            )
-        elif isinstance(m, SingleFile):
-            file = m.file
-            buttons.append(
-                InlineKeyboardButton(
-                    file.name,
-                    callback_data=f"{url}/{m.id}",
-                )
-            )
-        elif isinstance(m, Review):
-            buttons.append(
-                InlineKeyboardButton(
-                    m.get_name() + (" " + str(d.year) if (d := m.date) else ""),
-                    callback_data=f"{url}/{m.id}",
-                )
-            )
-    return buttons
+    return [material(url, m) for m in materials]
 
 
 # TODO: add docs
@@ -796,6 +785,12 @@ def view_added(
 def display(callback_data: str):
     return InlineKeyboardButton(
         "Display", callback_data=f"{callback_data}/{constants.DISPLAY}"
+    )
+
+
+def show_more(callback_data: str):
+    return InlineKeyboardButton(
+        "Show More", callback_data=f"{callback_data}/{constants.DISPLAY}"
     )
 
 
