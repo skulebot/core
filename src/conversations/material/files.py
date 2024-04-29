@@ -175,12 +175,12 @@ async def receive_file(
     file_name = (
         attachement.file_name
         if isinstance(attachement, (Document, Video))
-        else attachement[-1].file_unique_id if isinstance(attachement, list) else None
+        else attachement[-1].file_unique_id
     )
     telegram_id = (
         attachement.file_id
         if isinstance(attachement, (Document, Video))
-        else attachement[-1].file_id if isinstance(attachement, list) else None
+        else attachement[-1].file_id
     )
 
     material_id = int(match.group("material_id"))
