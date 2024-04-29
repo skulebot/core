@@ -64,10 +64,11 @@ from src.models import (
     Lecture,
     Material,
     MaterialType,
+    RefFilesMixin,
     Review,
     SingleFile,
 )
-from src.models.material import RefFilesMixin, get_material_class
+from src.models.material import get_material_class
 from src.utils import build_menu, session, user_mode
 
 

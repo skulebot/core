@@ -8,8 +8,8 @@ from telegram import InlineKeyboardMarkup, InputMedia, Update
 from telegram.ext import ContextTypes
 
 from src import buttons, constants, messages
-from src.models import Enrollment, File, HasNumber, Material, SingleFile
-from src.models.material import RefFilesMixin, __classes__, get_material_class
+from src.models import Enrollment, File, HasNumber, Material, RefFilesMixin, SingleFile
+from src.models.material import __classes__, get_material_class
 from src.utils import build_media_group, session
 
 TYPES = "|".join(
