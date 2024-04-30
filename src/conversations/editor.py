@@ -1,6 +1,5 @@
 """Contains callbacks and handlers for the /editorship conversaion"""
 
-import os
 import re
 from typing import List
 
@@ -17,6 +16,7 @@ from telegram.ext import (
 )
 
 from src import buttons, constants, messages, queries
+from src.config import Config
 from src.conversations.updatematerial import updatematerials_
 from src.models import AccessRequest, File, RoleName, Status
 from src.utils import build_menu, roles, session, set_my_commands
@@ -172,7 +172,6 @@ async def receive_id_file(
     )
     session.add(request)
 
-    rootids = os.getenv("ROOTIDS")
     mention = user.mention_html(user.full_name or "User")
     caption = (
         f"Editor Access Request: {mention}\n\n"
@@ -187,9 +186,9 @@ async def receive_id_file(
         ],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    for id in rootids.split(";"):
+    for id_ in Config.ROOTIDS:
         await context.bot.sendPhoto(
-            id,
+            id_,
             photo=file_id,
             caption=caption,
             reply_markup=reply_markup,

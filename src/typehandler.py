@@ -32,7 +32,7 @@ async def register_user(
             )
             session.add(user)
             user.roles.append(queries.role(session, RoleName.USER))
-            if telegram_id in [int(id) for id in Config.ROOTIDS.split(";")]:
+            if telegram_id in Config.ROOTIDS:
                 user.roles.append(queries.role(session, RoleName.ROOT))
             session.flush()
         context.user_data["id"] = user.id

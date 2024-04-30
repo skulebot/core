@@ -9,7 +9,11 @@ if os.getenv("ENV") != "production":
 class Config:
     BOT_TOKEN = os.getenv("BOT_TOKEN")
     DATABASE_URL = os.getenv("DATABASE_URL")
-    ROOTIDS = os.getenv("ROOTIDS")
+    ROOTIDS = tuple(
+        (int(id_.strip()) for id_ in ids.split(","))
+        if (ids := os.getenv("ROOTIDS"))
+        else None
+    )
     ERROR_CHANNEL_CHAT_ID = (
         int(id) if (id := os.getenv("ERROR_CHANNEL_CHAT_ID")) else None
     )
