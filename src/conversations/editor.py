@@ -197,7 +197,8 @@ async def receive_id_file(
 
     message = (
         "Thanks for taking the time."
-        " We have recieved your request and will get back to you very soon."
+        " We have recieved your request and will get back to you soon.\n\n"
+        "Meanwhile your can check your request status in /editor."
     )
     await update.message.reply_text(message)
 
