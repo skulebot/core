@@ -131,62 +131,56 @@ def build_media_group(
     return [media[i : i + 10] for i in range(0, len(media), 10)]
 
 
-async def set_user_commands(bot: Bot, user: User):
-    commands = [
-        BotCommand("enrollments", "start by enrolling to your program"),
-    ]
-    await bot.set_my_commands(commands, scope=BotCommandScopeChat(user.chat_id))
+user_commands = [
+    BotCommand("enrollments", "enroll yourself to a program"),
+]
+
+user_root_commands = [
+    BotCommand("requestmanagement", "manage pending access request"),
+    BotCommand("coursemanagement", "course management"),
+    BotCommand("contentmanagement", "content management"),
+    BotCommand("departments", "department management"),
+    BotCommand("programs", "program management"),
+    BotCommand("semesters", "semester management"),
+    BotCommand("academicyears", "academic year management"),
+]
+
+user_student_commands = [
+    BotCommand("courses", "list current courses"),
+    BotCommand("settings", "bot settings"),
+    BotCommand("enrollments", "update your enrollments"),
+    BotCommand("editor", "apply for access to upload content"),
+]
 
 
-async def set_student_commands(bot: Bot, user: User):
-    commands = [
-        BotCommand("courses", "courses you're currently studying"),
-        BotCommand("settings", "bot settings"),
-        BotCommand("enrollments", "manage your enrollments"),
-        BotCommand("editor", "gain access to upload materials"),
-    ]
-    await bot.set_my_commands(commands, scope=BotCommandScopeChat(user.chat_id))
-
-
-async def set_editor_commands(bot: Bot, user: User):
-    commands = [
-        BotCommand("courses", "courses you're currently studying"),
-        BotCommand("updatematerials", "update courses materials"),
-        BotCommand("settings", "bot settings"),
-        BotCommand("enrollments", "manage your enrollments"),
-        BotCommand("editor", "manage your editor accesses"),
-    ]
-    await bot.set_my_commands(commands, scope=BotCommandScopeChat(user.chat_id))
-
-
-async def set_root_commands(bot: Bot, user: User):
-    commands = [
-        BotCommand("courses", "courses you're currently studying"),
-        BotCommand("updatematerials", "update courses materials"),
-        BotCommand("settings", "bot settings"),
-        BotCommand("enrollments", "manage your enrollments"),
-        BotCommand("editor", "manage you editor accesses"),
-        BotCommand("requestmanagement", "manage pending access request"),
-        BotCommand("coursemanagement", "course management"),
-        BotCommand("contentmanagement", "content management"),
-        BotCommand("departments", "department management"),
-        BotCommand("programs", "program management"),
-        BotCommand("semesters", "semester management"),
-        BotCommand("academicyears", "academic year management"),
-    ]
-    await bot.set_my_commands(commands, scope=BotCommandScopeChat(user.chat_id))
+user_student_editor_commands = [
+    BotCommand("courses", "list current courses"),
+    BotCommand("updatematerials", "update current courses"),
+    BotCommand("settings", "bot settings"),
+    BotCommand("enrollments", "update your enrollments"),
+    BotCommand("editor", "control, revoke your access rights"),
+]
 
 
 async def set_my_commands(bot: Bot, user: User):
     role_names = [r.name for r in user.roles]
-    if RoleName.USER in role_names and len(role_names) == 1:
-        await set_user_commands(bot, user)
-    elif RoleName.STUDENT in role_names and len(role_names) == 2:
-        await set_student_commands(bot, user)
-    elif RoleName.EDITOR.value in role_names and RoleName.ROOT not in role_names:
-        await set_editor_commands(bot, user)
-    elif RoleName.ROOT in role_names:
-        await set_root_commands(bot, user)
+    role_names = {r.name for r in user.roles}
+    if role_names == {RoleName.USER}:
+        await bot.set_my_commands(
+            user_commands, scope=BotCommandScopeChat(user.chat_id)
+        )
+    elif role_names == {RoleName.USER, RoleName.ROOT}:
+        await bot.set_my_commands(
+            user_root_commands, scope=BotCommandScopeChat(user.chat_id)
+        )
+    elif role_names == {RoleName.USER, RoleName.STUDENT}:
+        await bot.set_my_commands(
+            user_student_commands, scope=BotCommandScopeChat(user.chat_id)
+        )
+    elif role_names == {RoleName.USER, RoleName.STUDENT, RoleName.EDITOR}:
+        await bot.set_my_commands(
+            user_student_editor_commands, scope=BotCommandScopeChat(user.chat_id)
+        )
 
 
 T = TypeVar("T")
