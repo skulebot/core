@@ -23,7 +23,7 @@
    ENV=development
    BOT_TOKEN=<your-bot-token>
    DATABASE_URL=<SQLAlchemy-database-url>
-   # use ";" to seperate ids, if there are multiple
+   # use "," to seperate ids, if there are multiple
    ROOTIDS=<telegram-user-ids>
 
    # Optional
