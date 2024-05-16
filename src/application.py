@@ -4,7 +4,14 @@ for an application."""
 import os
 
 from telegram import Update
-from telegram.ext import Application, ContextTypes, ExtBot
+from telegram.ext import (
+    Application,
+    ApplicationHandlerStop,
+    ContextTypes,
+    ExtBot,
+    MessageHandler,
+    filters,
+)
 
 from src import commands, constants, conversations
 from src.config import Config, ProductionConfig
@@ -41,7 +48,16 @@ def create() -> Application:
 
 
 def register_handlers(application: Application):
-    """Registers `CommandHandler`s, `ConversationHandler`s ...etc."""
+    async def raise_app_handler_stop(_: Update, __: ContextTypes.DEFAULT_TYPE) -> None:
+        raise ApplicationHandlerStop
+
+    # Ignore updates from error error channel
+    application.add_handler(
+        MessageHandler(
+            filters.Chat(chat_id=Config.ERROR_CHANNEL_CHAT_ID), raise_app_handler_stop
+        ),
+        group=-2,
+    )
 
     application.add_handler(typehandler, -1)
     application.add_handlers(commands.handlers, 1)
