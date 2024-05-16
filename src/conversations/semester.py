@@ -10,14 +10,15 @@ from telegram.constants import ParseMode
 from telegram.ext import (
     CallbackQueryHandler,
     CommandHandler,
-    ContextTypes,
     ConversationHandler,
     MessageHandler,
     filters,
 )
 
-from src import buttons, messages, queries
-from src.constants import ADD, DELETE, EDIT, NUMBER, ONE, SEMESTER_, SEMESTERS
+from src import queries
+from src.constants import ADD, COMMANDS, DELETE, EDIT, NUMBER, ONE, SEMESTER_, SEMESTERS
+from src.customcontext import CustomContext
+from src.messages import bold
 from src.models import RoleName, Semester
 from src.utils import build_menu, roles, session
 
@@ -31,9 +32,7 @@ DATA_KEY = SEMESTER_
 # ------------------------------- entry_points ---------------------------
 @roles(RoleName.ROOT)
 @session
-async def semester_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def semester_list(update: Update, context: CustomContext, session: Session):
     """Runs with Message.text `/semesters`"""
 
     query: None | CallbackQuery = None
@@ -45,13 +44,14 @@ async def semester_list(
     url = f"{URLPREFIX}/{SEMESTERS}"
 
     semesters = queries.semesters(session)
-    semester_button_list = buttons.semester_list(semesters, url=url)
+    semester_button_list = context.buttons.semester_list(semesters, url=url)
     keyboard = build_menu(
-        semester_button_list, 2, footer_buttons=buttons.add(url, "Semester")
+        semester_button_list, 2, footer_buttons=context.buttons.add(url, "Semester")
     )
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = "Semesters"
+    _ = context.gettext
+    message = _("Semesters")
 
     if query:
         await query.edit_message_text(message, reply_markup=reply_markup)
@@ -63,9 +63,7 @@ async def semester_list(
 
 # -------------------------- states callbacks ---------------------------
 @session
-async def semester(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def semester(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data ^{URLPREFIX}/{SEMESTERS}/(?P<semester_id>\d+)$"""
 
     query: None | CallbackQuery = None
@@ -79,27 +77,26 @@ async def semester(
     semester = queries.semester(session, semester_id)
 
     keyboard = [
-        [buttons.edit(url, "Number"), buttons.delete(url, "Semester")],
-        [buttons.back(url, "/\d+")],
+        [context.buttons.edit(url, "Number"), context.buttons.delete(url, "Semester")],
+        [context.buttons.back(url, "/\d+")],
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = f"*Number*: {semester.number}"
+    _ = context.gettext
+    message = bold(_("Number")) + f": {semester.number}"
 
     if query:
         await query.edit_message_text(
-            message, reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN_V2
+            message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
         )
     else:
-        await update.message.reply_markdown_v2(message, reply_markup=reply_markup)
+        await update.message.reply_html(message, reply_markup=reply_markup)
 
     return ONE
 
 
 @session
-async def semester_add(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def semester_add(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data ^{URLPREFIX}/{SEMESTERS}/{constants.ADD}$"""
 
     query = update.callback_query
@@ -109,12 +106,15 @@ async def semester_add(
 
     session.add(Semester(number=max + 1))
     session.flush()
-    await query.answer(messages.success_added(f"Semester {max + 1}"))
+    _ = context.gettext
+    await query.answer(
+        _("Success! {} created").format(_("Semester {}").format(max + 1))
+    )
 
     return await semester_list.__wrapped__.__wrapped__(update, context, session)
 
 
-async def semester_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def semester_edit(update: Update, context: CustomContext):
     """Runs on callback_data {URLPREFIX}/{SEMESTERS}/(?P<semester_id>\d+)/{EDIT}$"""
 
     query = update.callback_query
@@ -123,7 +123,8 @@ async def semester_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
     url = context.match.group()
     context.chat_data.setdefault(DATA_KEY, {})["url"] = url
 
-    message = messages.type_number()
+    _ = context.gettext
+    message = _("Type number")
     await query.message.reply_text(
         message,
     )
@@ -132,9 +133,7 @@ async def semester_edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @session
-async def receive_number(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def receive_number(update: Update, context: CustomContext, session: Session):
     """Runs on `Message.text` matching ^(\d+)$"""
 
     semester_number = int(context.match.groups()[0])
@@ -149,19 +148,18 @@ async def receive_number(
     semester = queries.semester(session, semester_id)
     semester.number = int(semester_number)
 
-    keyboard = [[buttons.back(match.group(), f"/{EDIT}", "to Semester")]]
-
+    keyboard = [[context.buttons.back(match.group(), f"/{EDIT}", "to Semester")]]
+    _ = context.gettext
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = messages.success_updated("Semester number")
+
+    message = _("Success! {} updated").format(_("Semester number"))
     await update.message.reply_text(message, reply_markup=reply_markup)
 
     return ONE
 
 
 @session
-async def semester_delete(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def semester_delete(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data
     {URLPREFIX}/{SEMESTERS}/(?P<semester_id>\d+)/{DELETE}(?:\?c=(?P<has_confirmed>1|0))?$
     """
@@ -176,21 +174,26 @@ async def semester_delete(
     semester = queries.semester(session, semester_id)
     has_confirmed = context.match.group("has_confirmed")
 
+    _ = context.gettext
     menu_buttons: List
     message: str
 
     if has_confirmed is None:
-        menu_buttons = buttons.delete_group(url=url)
-        message = messages.delete_confirm(f"Semester {semester.number}")
+        menu_buttons = context.buttons.delete_group(url=url)
+        message = _("Delete warning {}").format(
+            bold(_("Semester {}").format(semester.number))
+        )
     elif has_confirmed == "0":
-        menu_buttons = buttons.confirm_delete_group(url=url)
-        message = messages.delete_reconfirm(f"Semester {semester.number}")
+        menu_buttons = context.buttons.confirm_delete_group(url=url)
+        message = _("Confirm delete warning {}").format(
+            bold(_("Semester {}").format(semester.number))
+        )
     elif has_confirmed == "1":
         session.delete(semester)
         menu_buttons = [
-            buttons.back(url, text="to Semesters", pattern=rf"/\d+/{DELETE}")
+            context.buttons.back(url, text="to Semesters", pattern=rf"/\d+/{DELETE}")
         ]
-        message = messages.success_deleted(f"Semester {semester.number}")
+        message = _("Success! {} deleted").format("Semester {}").format(semester.number)
 
     keyboard = build_menu(menu_buttons, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -204,8 +207,9 @@ async def semester_delete(
 
 # ------------------------- ConversationHander -----------------------------
 
+cmd = COMMANDS
 entry_points = [
-    CommandHandler("semesters", semester_list),
+    CommandHandler(cmd.semesters.command, semester_list),
 ]
 
 states = {

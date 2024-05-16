@@ -3,16 +3,17 @@ from datetime import date
 
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
-from telegram.ext import ContextTypes
+from telegram.constants import ParseMode
 
-from src import buttons, constants, messages
+from src import constants
+from src.customcontext import CustomContext
 from src.models import Review
 from src.utils import session
 
 TYPES = Review.__mapper_args__.get("polymorphic_identity")
 
 
-async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def edit(update: Update, context: CustomContext):
     """
     Runs on callback_data
     `^{URLPREFIX}/{constants.COURSES}/(\d+)/(CLS_GROUP)/(\d+)/{constants.EDIT}/{NUMBER}$`
@@ -21,17 +22,16 @@ async def edit(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
 
     context.chat_data["url"] = context.match.group()
+    _ = context.gettext
 
-    message = messages.type_date() + ". Type /empty to remove current date"
-    await query.message.reply_text(
-        message,
-    )
+    message = _("Type date") + _("/empty to clear {}").format(_("Date"))
+    await query.message.reply_text(message, parse_mode=ParseMode.HTML)
 
     return f"{constants.EDIT} {constants.DATE}"
 
 
 @session
-async def receive(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session):
+async def receive(update: Update, context: CustomContext, session: Session):
     url = context.chat_data.get("url")
     match: re.Match[str] | None = re.search(
         f"/(?P<material_type>{TYPES})/(?P<material_id>\d+)"
@@ -41,13 +41,14 @@ async def receive(update: Update, context: ContextTypes.DEFAULT_TYPE, session: S
 
     material_id = int(match.group("material_id"))
     material = session.get(Review, material_id)
+    _ = context.gettext
     try:
-        keyboard = [[buttons.back(url, rf"/{constants.EDIT}.*$", "to Review")]]
+        keyboard = [[context.buttons.back(url, rf"/{constants.EDIT}.*$")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         if update.message.text == "/empty":
             material.date = None
-            message = messages.success_deleted("date")
+            message = _("Success! {} removed").format(_("Date"))
             await update.message.reply_text(message, reply_markup=reply_markup)
             return constants.ONE
 
@@ -60,7 +61,7 @@ async def receive(update: Update, context: ContextTypes.DEFAULT_TYPE, session: S
             int(day) if day else 1
         )
         material.date = date(year, month, day)
-        message = messages.success_updated("Review date")
+        message = _("Success! {} updated").format(_("Date"))
         await update.message.reply_text(message, reply_markup=reply_markup)
         return constants.ONE
     # Invalid date values

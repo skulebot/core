@@ -5,62 +5,24 @@ import re
 from sqlalchemy.orm import Session
 from telegram import CallbackQuery, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
-from telegram.ext import (
-    CallbackQueryHandler,
-    CommandHandler,
-    ContextTypes,
-    ConversationHandler,
-)
+from telegram.ext import CallbackQueryHandler, CommandHandler, ConversationHandler
 
-from src import buttons, constants, messages, queries
+from src import constants, messages, queries
 from src.conversations.material import material
-from src.models import MaterialType, RoleName, UserOptionalCourse
+from src.customcontext import CustomContext
+from src.messages import underline
+from src.models import Course, MaterialType, RoleName, UserOptionalCourse
 from src.utils import build_menu, roles, session
 
 URLPREFIX = constants.UPDATE_MATERIALS_
 """Used as a prefix for all `callback data` in this conversation"""
-
-
-# helpers
-def title(match: re.Match, session: Session):
-    url: str = match.group()
-    text = ""
-    if url.startswith(constants.UPDATE_MATERIALS_):
-        text += "<u>Editor Menu</u>"
-    elif url.startswith(constants.EDITOR_):
-        text += "<u>Editor Access</u>"
-    elif url.startswith(constants.CONETENT_MANAGEMENT_):
-        text += "<u>Content Management</u>"
-
-    if match.group("enrollment_id"):
-        text += "\n\n" + messages.enrollment_text(match, session)
-    elif match.group("year_id"):
-        program_id = match.group("program_id")
-        program = queries.program(session, program_id)
-        semester_id = match.group("semester_id")
-        semester = queries.semester(session, semester_id)
-        year_id = match.group("year_id")
-        year = queries.academic_year(session, year_id)
-        text += (
-            "\n\n"
-            + program.get_name()
-            + "\n"
-            + f"Semester {semester.number}"
-            + "\n"
-            + f"{year.start} - {year.end}"
-            + "\n"
-        )
-    return text
-
 
 # ------------------------------- entry_points ---------------------------
 
 
 @roles(RoleName.EDITOR)
 @session
-async def update_materials(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def update_materials(update: Update, context: CustomContext, session: Session):
     """Runs with Message.text `updatematerials`"""
 
     query: None | CallbackQuery = None
@@ -81,10 +43,13 @@ async def update_materials(
         program_id=enrollment.program.id,
         semester_id=enrollment.semester.id,
         user_id=context.user_data["id"],
+        sort_attr=(
+            Course.ar_name if context.language_code == constants.AR else Course.en_name
+        ),
     )
 
     url = f"{URLPREFIX}/{constants.ENROLLMENTS}/{enrollment.id}/{constants.COURSES}"
-    menu = buttons.courses_list(
+    menu = context.buttons.courses_list(
         user_courses,
         url=url,
     )
@@ -94,15 +59,20 @@ async def update_materials(
         semester_id=enrollment.semester.id,
     )
     menu = (
-        [*menu, buttons.optional_courses(f"{url}/{constants.OPTIONAL}")]
+        [*menu, context.buttons.optional_courses(f"{url}/{constants.OPTIONAL}")]
         if has_optional_courses
         else menu
     )
     keyboard = build_menu(menu, 1)
-
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = "<u>Editor Menu</u>\n\n" + messages.enrollment_text(
-        context.match, session, enrollment=enrollment
+    _ = context.gettext
+
+    message = (
+        underline(_("Editor Menu"))
+        + "\n\n"
+        + messages.enrollment_text(
+            context.match, session, enrollment=enrollment, context=context
+        )
     )
     if query:
         await query.edit_message_text(
@@ -113,7 +83,7 @@ async def update_materials(
 
 
 @session
-async def course(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session):
+async def course(update: Update, context: CustomContext, session: Session):
     """
     Runs on callback_data `^{PREFIXES}`
     """
@@ -122,15 +92,19 @@ async def course(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Se
     await query.answer()
 
     url = context.match.group()
+    course_id = int(context.match.group("course_id"))
+    course = queries.course(session, course_id)
 
-    keyboard = buttons.material_groups(url=url, groups=list(MaterialType))
-    keyboard.append([buttons.back(url, "/(\d+)$")])
-
+    keyboard = context.buttons.material_groups(url=url, groups=list(MaterialType))
+    keyboard.append([context.buttons.back(url, "/(\d+)$")])
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
     message = (
-        title(context.match, session)
+        messages.title(context.match, session, context=context)
         + "\n"
-        + messages.course_text(context.match, session)
+        + _("t-symbol")
+        + "─ "
+        + course.get_name(context.language_code)
     )
 
     await query.edit_message_text(
@@ -141,9 +115,7 @@ async def course(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Se
 
 
 @session
-async def optional_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def optional_list(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data
     `({constants.UPDATE_MATERIALS_}|{constants.EDITOR_})/{constants.ENROLLMENTS}
     /(?P<enrollment_id>\d+)/{constants.COURSES}/{constants.OPTIONAL}
@@ -198,7 +170,7 @@ async def optional_list(
     selected_ids = [
         optional.program_semester_course_id for optional in user_optional_courses
     ]
-    menu = buttons.program_semester_courses_list(
+    menu = context.buttons.program_semester_courses_list(
         program_optional_courses,
         url=url,
         sep="?psc_id=",
@@ -206,14 +178,13 @@ async def optional_list(
         selected_ids=selected_ids,
     )
     menu += [
-        buttons.back(url, pattern=rf"/{constants.OPTIONAL}$"),
+        context.buttons.back(url, pattern=rf"/{constants.OPTIONAL}$"),
     ]
 
     keyboard = build_menu(menu, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = (
-        "These courses are optional. Select one or more to add to your /courses menu"
-    )
+    _ = context.gettext
+    message = _("Select optional courses")
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
     )
@@ -240,8 +211,9 @@ PREFIXES = (
 )
 
 
+cmd = constants.COMMANDS
 entry_points = [
-    CommandHandler("updatematerials", update_materials),
+    CommandHandler(cmd.updatematerials.command, update_materials),
     CallbackQueryHandler(course, pattern=f"^{PREFIXES}$"),
     CallbackQueryHandler(
         optional_list,

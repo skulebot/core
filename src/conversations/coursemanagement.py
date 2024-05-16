@@ -7,13 +7,14 @@ from telegram.constants import ParseMode
 from telegram.ext import (
     CallbackQueryHandler,
     CommandHandler,
-    ContextTypes,
     ConversationHandler,
     MessageHandler,
     filters,
 )
 
-from src import buttons, constants, messages, queries
+from src import constants, queries
+from src.customcontext import CustomContext
+from src.messages import bold, underline
 from src.models import Course, RoleName
 from src.utils import Pager, build_menu, roles, session
 
@@ -29,9 +30,7 @@ DATA_KEY = constants.COURSE_MANAGEMENT_
 
 @session
 @roles(RoleName.ROOT)
-async def department_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def department_list(update: Update, context: CustomContext, session: Session):
     """Runs with Message.text `/coursemanaement`"""
 
     query: None | CallbackQuery = None
@@ -43,17 +42,18 @@ async def department_list(
     url: str = f"{URLPREFIX}/{constants.DEPARTMENTS}"
 
     departments = queries.departments(session)
-    button_list = buttons.departments_list(
+    button_list = context.buttons.departments_list(
         departments,
         url=url,
     )
     button_list += [
-        buttons.add(url + f"/0/{constants.COURSES}", "Course"),
+        context.buttons.add(url + f"/0/{constants.COURSES}", "Course"),
     ]
     keyboard = build_menu(button_list, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
 
-    message = "<u>" + "Course Management" + "</u>"
+    message = underline(_("Course Management"))
     if query:
         await query.edit_message_text(
             message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -66,9 +66,7 @@ async def department_list(
 
 # -------------------------- states callbacks ---------------------------
 @session
-async def course_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def course_list(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data
     `"^{URLPREFIX}/{constants.DEPARTMENTS}/(?P<department_id>\d+)(?:/{constants.COURSES})?(?:\?p=(\d+))?$`
     """
@@ -87,7 +85,7 @@ async def course_list(
 
     # url here is calculated because this handler reenter with query params
     url = re.search(rf".*/{constants.DEPARTMENTS}/\d+", context.match.group()).group()
-    menu = buttons.courses_list(pager.items, url + f"/{constants.COURSES}")
+    menu = context.buttons.courses_list(pager.items, url + f"/{constants.COURSES}")
 
     keyboard = build_menu(menu, 2)
 
@@ -96,24 +94,31 @@ async def course_list(
         keyboard.append(pager_keyboard)
         if pager.has_previous:
             pager_keyboard.append(
-                buttons.previous_page(f"{url}?p={pager.previous_offset}")
+                context.buttons.previous_page(f"{url}?p={pager.previous_offset}")
             )
         if pager.has_next:
-            pager_keyboard.append(buttons.next_page(f"{url}?p={pager.next_offset}"))
+            pager_keyboard.append(
+                context.buttons.next_page(f"{url}?p={pager.next_offset}")
+            )
 
     keyboard.extend(
         [
-            [buttons.add(f"{url}/{constants.COURSES}", "Course")],
-            [buttons.back(url, r"/\d+")],
+            [context.buttons.add(f"{url}/{constants.COURSES}", "Course")],
+            [context.buttons.back(url, r"/\d+")],
         ]
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
+
     message = (
-        "<u>"
-        "Course Management"
-        "</u>\n\n"
-        + messages.first_list_level(
-            department.get_name() if department else "N/A Department"
+        underline(_("Course Management"))
+        + "\n\n"
+        + _("t-symbol")
+        + "─ "
+        + (
+            department.get_name(context.language_code)
+            if department
+            else _("General Department")
         )
     )
     await query.edit_message_text(
@@ -124,7 +129,7 @@ async def course_list(
 
 
 @session
-async def course(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session):
+async def course(update: Update, context: CustomContext, session: Session):
     """
     Runs on callback_data
     `^{URLPREFIX}/{constants.DEPARTMENTS}/(?P<department_id>\d+)
@@ -142,31 +147,39 @@ async def course(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Se
     course = queries.course(session, course_id)
 
     menu = [
-        buttons.edit(url, end="/" + constants.AR, text="Arabic Name"),
-        buttons.edit(url, end="/" + constants.EN, text="English Name"),
-        buttons.edit(url, end="/" + constants.DEPARTMENTS, text="Department"),
-        buttons.edit(url, end="/" + constants.CREDITS, text="Credits"),
+        context.buttons.edit(url, end="/" + constants.AR, text="Arabic Name"),
+        context.buttons.edit(url, end="/" + constants.EN, text="English Name"),
+        context.buttons.edit(url, end="/" + constants.DEPARTMENTS, text="Department"),
+        context.buttons.edit(url, end="/" + constants.CREDITS, text="Credits"),
     ]
     keyboard = build_menu(menu, 2)
     keyboard.extend(
         [
-            [buttons.delete(url, "Course")],
-            [buttons.back(url, rf"/{constants.COURSES}/\d+$")],
+            [context.buttons.delete(url, "Course")],
+            [context.buttons.back(url, rf"/{constants.COURSES}/\d+$")],
         ]
     )
 
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
     message = (
-        "<u>"
-        "Course Management"
-        "</u>\n\n"
-        + messages.first_list_level(
-            department.get_name() if department else "N/A Department"
+        underline(_("Course Management"))
+        + "\n\n"
+        + _("t-symbol")
+        + "─ "
+        + (
+            department.get_name(context.language_code)
+            if department
+            else _("General Department")
         )
-        + messages.second_list_level(course.get_name())
+        + "\n│ "
+        + _("corner-symbol")
+        + "── "
+        + course.get_name(context.language_code)
+        + "\n\n"
+        + _("Name in Arabic {} and English {}").format(course.ar_name, course.en_name)
         + "\n"
-        + messages.multilang_names(ar=course.ar_name, en=course.en_name)
-        + f"Credits: {course.credits or ''}"
+        + _("Credits: {}").format(course.credits or "")
     )
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -175,7 +188,7 @@ async def course(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Se
     return constants.ONE
 
 
-async def course_add(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def course_add(update: Update, context: CustomContext):
     """Runs on callback_data
     `^{URLPREFIX}/{constants.DEPARTMENTS}/(\d+)/{constants.COURSES}/{constants.ADD}$`
     """
@@ -185,18 +198,15 @@ async def course_add(update: Update, context: ContextTypes.DEFAULT_TYPE):
     url = context.match.group()
     context.chat_data.setdefault(DATA_KEY, {})["url"] = url
 
-    message = "Type name"
-    await query.message.reply_text(
-        message,
-    )
+    _ = context.gettext
+    message = _("Type multilingual name")
+    await query.message.reply_text(message, parse_mode=ParseMode.HTML)
 
     return constants.ADD
 
 
 @session
-async def receive_name_new(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def receive_name_new(update: Update, context: CustomContext, session: Session):
     """Runs with Message.text matching
     `^(?P<en_name>(?:.)+?)\s*-\s*(?P<ar_name>(?:.)+?)$`
     """
@@ -216,16 +226,17 @@ async def receive_name_new(
     session.add(course)
     session.flush()
 
-    keyboard = [[buttons.view_added(course.id, url)]]
+    keyboard = [[context.buttons.view_added(course.id, url)]]
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
 
-    message = "Success! Course created."
+    message = _("Success! {} created").format(_("Course"))
     await update.message.reply_text(message, reply_markup=reply_markup)
 
     return constants.ONE
 
 
-async def course_edit_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def course_edit_name(update: Update, context: CustomContext):
     """Runs on callback_data
     `^{URLPREFIX}/{constants.DEPARTMENTS}/(?P<department_id>\d+)/{constants.COURSES}
     /(?P<course_id>\d+)/{constants.EDIT}/(?P<lang_code>{constants.AR}|{constants.EN})$`
@@ -238,9 +249,10 @@ async def course_edit_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lang_code = context.match.group("lang_code")
 
     context.chat_data.setdefault(DATA_KEY, {})["url"] = url
+    _ = context.gettext
 
-    language = "Arabic" if lang_code == constants.AR else "English"
-    message = messages.type_name_in_lang(language)
+    language = _("Arabic") if lang_code == constants.AR else _("English")
+    message = _("Type name in {}").format(language)
     await query.message.reply_text(
         message,
     )
@@ -249,9 +261,7 @@ async def course_edit_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @session
-async def receive_name_edit(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def receive_name_edit(update: Update, context: CustomContext, session: Session):
     """Runs with Message.text matching `^([^\d].+)$`"""
 
     name = context.match.groups()[0].strip()
@@ -271,19 +281,22 @@ async def receive_name_edit(
 
     keyboard = [
         [
-            buttons.back(url, pattern=rf"/{constants.EDIT}.*", text="to Course"),
+            context.buttons.back(
+                url, pattern=rf"/{constants.EDIT}.*", text="to Course"
+            ),
         ],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
 
-    language = "Arabic" if lang_code == constants.AR else "English"
-    message = messages.success_updated(f"{language} name")
+    language = _("Arabic") if lang_code == constants.AR else _("English")
+    message = _("Success! {} updated").format(_("Name in {}")).format(language)
     await update.message.reply_text(message, reply_markup=reply_markup)
 
     return constants.ONE
 
 
-async def course_edit_credits(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def course_edit_credits(update: Update, context: CustomContext):
     """Runs on callback_data
     `^{URLPREFIX}/{constants.DEPARTMENTS}/(?P<department_id>\d+)
     /{constants.COURSES}/(?P<course_id>\d+)/{constants.EDIT}/{constants.CREDITS}$`"""
@@ -293,8 +306,9 @@ async def course_edit_credits(update: Update, context: ContextTypes.DEFAULT_TYPE
 
     url = context.match.group()
     context.chat_data.setdefault(DATA_KEY, {})["url"] = url
+    _ = context.gettext
 
-    message = messages.type_number() + ". type /empty to remove current credits"
+    message = _("Type number") + _("/empty to clear {}").format(_("Credits"))
     await query.message.reply_text(
         message,
     )
@@ -304,7 +318,7 @@ async def course_edit_credits(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 @session
 async def receive_credits_edit(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ):
     """Runs with Message.text mathcing either `^(?P<credits>\d+)$` or `/empty`"""
     url = context.chat_data[DATA_KEY]["url"]
@@ -316,23 +330,28 @@ async def receive_credits_edit(
     course_id = int(match.group("course_id"))
     course = queries.course(session, course_id)
 
-    keyboard = [[buttons.back(url, pattern=rf"/{constants.EDIT}.*", text="to Course")]]
+    keyboard = [
+        [context.buttons.back(url, pattern=rf"/{constants.EDIT}.*", text="to Course")]
+    ]
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
 
     if update.message.text == "/empty":
         course.credits = None
-        message = messages.success_deleted("Credits")
+        message = _("Success! {} deleted").format(_("Credits"))
         await update.message.reply_text(message, reply_markup=reply_markup)
         return constants.ONE
 
     credits = context.match.group("credits").strip()
     course.credits = int(credits)
 
-    keyboard = [[buttons.back(url, pattern=rf"/{constants.EDIT}.*", text="to Course")]]
+    keyboard = [
+        [context.buttons.back(url, pattern=rf"/{constants.EDIT}.*", text="to Course")]
+    ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    message = messages.success_updated("Credits")
+    message = _("Success! {} updated").format(_("Credits"))
     await update.message.reply_text(message, reply_markup=reply_markup)
 
     return constants.ONE
@@ -340,7 +359,7 @@ async def receive_credits_edit(
 
 @session
 async def course_change_department(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ):
     """
     Runs on callback_data
@@ -360,21 +379,30 @@ async def course_change_department(
     course = queries.course(session, course_id)
 
     departments = queries.departments(session)
-    menu = buttons.departments_list(departments, url, selected_id=int(department_id))
-    menu += [buttons.back(url, pattern=rf"/{constants.DEPARTMENTS}$")]
+    menu = context.buttons.departments_list(
+        departments, url, selected_id=int(department_id)
+    )
+    menu += [context.buttons.back(url, pattern=rf"/{constants.DEPARTMENTS}$")]
     keyboard = build_menu(menu, 1)
-
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
+
     message = (
-        "<u>"
-        "Course Management"
-        "</u>\n\n"
-        + messages.first_list_level(
-            department.get_name() if department else "N/A Department"
+        underline(_("Course Management"))
+        + "\n\n"
+        + _("t-symbol")
+        + "─ "
+        + (
+            department.get_name(context.language_code)
+            if department
+            else _("General Department")
         )
-        + messages.second_list_level(course.get_name())
-        + "\n"
-        + "Select department"
+        + "\n│ "
+        + _("corner-symbol")
+        + "── "
+        + course.get_name(context.language_code)
+        + "\n\n"
+        + _("Select {}").format(_("Department"))
     )
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -385,7 +413,7 @@ async def course_change_department(
 
 @session
 async def course_set_department(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ):
     """Runs on callback_data
     `^{URLPREFIX}/{constants.DEPARTMENTS}/(?P<department_id>\d+)/{constants.COURSES}
@@ -405,19 +433,19 @@ async def course_set_department(
     course.department_id = new_department_id if new_department_id else None
 
     course_url = url.replace(f"/{old_department_id}/", f"/{new_department_id}/")
-    keyboard = [[buttons.back(course_url, f"/{constants.EDIT}.*", "to Course")]]
 
+    keyboard = [[context.buttons.back(course_url, f"/{constants.EDIT}.*", "to Course")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = messages.success_updated("Course department")
+    _ = context.gettext
+
+    message = _("Success! {} updated").format(_("Department"))
     await query.edit_message_text(message, reply_markup=reply_markup)
 
     return constants.ONE
 
 
 @session
-async def course_delete(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def course_delete(update: Update, context: CustomContext, session: Session):
     """Runs on
     `^{URLPREFIX}/{constants.DEPARTMENTS}/(?P<department_id>\d+)/{constants.COURSES}
     /(?P<course_id>\d+)/{constants.DELETE}(?:\?c=(?P<has_confirmed>1|0))?$`
@@ -435,29 +463,45 @@ async def course_delete(
     course = queries.course(session, course_id)
     has_confirmed = context.match.group("has_confirmed")
 
+    course_name = course.get_name(context.language_code)
+
     menu_buttons: List
+    _ = context.gettext
     message = (
-        "<u>"
-        "Course Management"
-        "</u>\n\n"
-        + messages.first_list_level(
-            department.get_name() if department else "N/A Department"
+        underline(_("Course Management"))
+        + "\n\n"
+        + _("t-symbol")
+        + "─ "
+        + (
+            department.get_name(context.language_code)
+            if department
+            else _("General Department")
         )
-        + messages.second_list_level(course.get_name())
+        + "\n│ "
+        + _("corner-symbol")
+        + "── "
+        + course_name
+        + "\n\n"
     )
 
     if has_confirmed is None:
-        menu_buttons = buttons.delete_group(url=url)
-        message += "\n" + messages.delete_confirm(f"Course {course.get_name()}")
+        menu_buttons = context.buttons.delete_group(url=url)
+        message = _("Delete warning {}").format(
+            bold(_("Course {}").format(course_name))
+        )
     elif has_confirmed == "0":
-        menu_buttons = buttons.confirm_delete_group(url=url)
-        message += "\n" + messages.delete_reconfirm(f"Course {course.get_name()}")
+        menu_buttons = context.buttons.confirm_delete_group(url=url)
+        message = _("Confirm delete warning {}").format(
+            bold(_("Course {}").format(course_name))
+        )
     elif has_confirmed == "1":
         session.delete(course)
         menu_buttons = [
-            buttons.back(url, text="to Courses", pattern=rf"/\d+/{constants.DELETE}")
+            context.buttons.back(
+                url, text="to Courses", pattern=rf"/\d+/{constants.DELETE}"
+            )
         ]
-        message = messages.success_deleted(f"Course {course.get_name()}")
+        message = _("Success! {} deleted").format(course_name)
 
     keyboard = build_menu(menu_buttons, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -471,8 +515,9 @@ async def course_delete(
 
 # ------------------------- ConversationHander -----------------------------
 
+cmd = constants.COMMANDS
 entry_points = [
-    CommandHandler("coursemanagement", department_list),
+    CommandHandler(cmd.coursemanagement.command, department_list),
 ]
 
 states = {

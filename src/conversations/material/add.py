@@ -4,9 +4,9 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 from telegram import Document, InlineKeyboardMarkup, Update, Video
 from telegram.constants import ParseMode
-from telegram.ext import ContextTypes
 
-from src import buttons, constants, messages
+from src import constants, messages, queries
+from src.customcontext import CustomContext
 from src.models import (
     Enrollment,
     File,
@@ -21,9 +21,7 @@ from src.utils import build_menu, session
 
 
 @session
-async def handler(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session, back
-):
+async def handler(update: Update, context: CustomContext, session: Session, back):
     """
     Runs on callback_data
     `^{URLPREFIX}/{constants.COURSES}/(\d+)/(CLS_GROUP)/{constants.ADD}$`
@@ -31,13 +29,15 @@ async def handler(
     query = update.callback_query
 
     material_type = context.match.group("material_type")
-    course_id = int(context.match.group("course_id"))
     if enrollment_id := context.match.group("enrollment_id"):
         enrollment = session.get(Enrollment, enrollment_id)
         academic_year_id = enrollment.academic_year_id
     elif year_id := context.match.group("year_id"):
         academic_year_id = year_id
+    course_id = int(context.match.group("course_id"))
+    course = queries.course(session, course_id)
 
+    _ = context.gettext
     MaterialClass = get_material_class(material_type)
     if issubclass(MaterialClass, HasNumber):
         max = session.scalar(
@@ -58,7 +58,7 @@ async def handler(
         session.flush()
 
         await query.answer(
-            messages.success_added(f"New {material_type.capitalize()} {max+1}")
+            _("Success! {} added").format(_(material_type) + f" {max + 1}")
         )
 
         return await back.__wrapped__(update, context, session)
@@ -67,7 +67,7 @@ async def handler(
         await query.answer()
         context.chat_data["url"] = context.match.group()
 
-        message = messages.send_files(MaterialClass.MEDIA_TYPES)
+        message = _("Send files ({})").format(", ".join(MaterialClass.MEDIA_TYPES))
         await query.message.reply_text(message)
         return f"{constants.ADD} {constants.MATERIALS}"
 
@@ -84,27 +84,34 @@ async def handler(
             )
             session.add(review)
             session.flush()
-            await query.answer(messages.success_created("Exam"))
+            await query.answer(_("Success! {} created").format(_(review.type)))
 
             return await back.__wrapped__(
                 update, context, session, material_id=review.id
             )
 
         await query.answer()
-        menu = buttons.review_types(context.match.group())
+        menu = context.buttons.review_types(context.match.group())
 
         keyboard = build_menu(
             menu,
             2,
-            footer_buttons=buttons.back(context.match.group(), rf"/{constants.ADD}.*"),
+            footer_buttons=context.buttons.back(
+                context.match.group(), rf"/{constants.ADD}.*"
+            ),
         )
 
         reply_markup = InlineKeyboardMarkup(keyboard)
         message = (
-            messages.title(context.match, session)
+            messages.title(context.match, session, context=context)
             + "\n"
-            + messages.course_text(context.match, session)
-            + "\nSelect type"
+            + _("t-symbol")
+            + "─ "
+            + course.get_name(context.language_code)
+            + "\n"
+            + messages.material_type_text(context.match, context=context)
+            + "\n"
+            + _("Select {}").format(_("Type"))
         )
         await query.edit_message_text(
             message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
@@ -119,7 +126,7 @@ ALLTYPES = "|".join([t.value for t in MaterialType])
 
 @session
 async def receive_material_file(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session, url_prefix
+    update: Update, context: CustomContext, session: Session, url_prefix
 ):
     message = update.message
 
@@ -147,6 +154,7 @@ async def receive_material_file(
         attachement.file_id if isinstance(attachement, (Document, Video)) else None
     )
 
+    _ = context.gettext
     course_id = int(match.group("course_id"))
     if enrollment_id := match.group("enrollment_id"):
         enrollment = session.get(Enrollment, enrollment_id)
@@ -178,21 +186,25 @@ async def receive_material_file(
             url,
         )
         menu = [
-            buttons.view_added(id=material.id, url=url, text="File"),
-            buttons.edit(f"{file_url}/{constants.SOURCE}", "Source"),
+            context.buttons.edit(f"{file_url}/{constants.SOURCE}", _("Source")),
         ]
         if not url.startswith(constants.CONETENT_MANAGEMENT_):
             menu.insert(
                 1,
-                buttons.publish(
+                context.buttons.publish(
                     callback_data=re.sub(rf"/{constants.ADD}", f"/{material.id}", url)
                 ),
             )
-
-        keyboard = build_menu(menu, 2)
-
+        keyboard = build_menu(
+            menu,
+            2,
+            footer_buttons=context.buttons.back(
+                url, rf"/{constants.ADD}", text=_(f"{material.type}s")
+            ),
+            reverse=context.language_code == constants.AR,
+        )
         reply_markup = InlineKeyboardMarkup(keyboard)
-        message = messages.success_added(file_name)
+        message = _("Success! {} added").format(file_name)
         await update.message.reply_text(message, reply_markup=reply_markup)
 
         return f"{constants.ADD} {constants.MATERIALS}"

@@ -7,11 +7,13 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
-from telegram.ext import CallbackQueryHandler, ContextTypes, ConversationHandler
+from telegram.ext import CallbackQueryHandler, ConversationHandler
 
-from src import buttons, commands, constants, messages, queries
+from src import commands, constants, messages, queries
 from src.conversations.course import usercourses_
-from src.models import Enrollment, RoleName, Status
+from src.customcontext import CustomContext
+from src.messages import bold
+from src.models import Course, Enrollment, RoleName, Status
 from src.utils import build_menu, session, set_my_commands
 
 # ------------------------- Callbacks -----------------------------
@@ -22,7 +24,7 @@ URLPREFIX = constants.ENROLLMENT_
 
 @session
 async def enrollments_add(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ) -> None:
     """Runs on callback_data
     ^{URLPREFIX}/{constants.ENROLLMENTS}/{constants.ADD}
@@ -41,13 +43,15 @@ async def enrollments_add(
     )
 
     message: str
+    _ = context.gettext
+
     if program_id is None:
-        message = "Select program"
+        message = _("Select {}").format(_("Program"))
         programs = queries.programs(session)
         menu = build_menu(
-            buttons.programs_list(programs, url, sep="&program_id="),
+            context.buttons.programs_list(programs, url, sep="&program_id="),
             1,
-            footer_buttons=buttons.back(url, f"/{constants.ENROLLMENTS}.*"),
+            footer_buttons=context.buttons.back(url, f"/{constants.ENROLLMENTS}.*"),
         )
         reply_markup = InlineKeyboardMarkup(menu)
 
@@ -56,14 +60,14 @@ async def enrollments_add(
         )
         return constants.ONE
     if program_semester_id is None:
-        message = "Select level"
+        message = _("Select {}").format(_("Level"))
         program_semesters = queries.program_semesters(session, program_id)
         menu = build_menu(
-            buttons.program_levels_list(
+            context.buttons.program_levels_list(
                 program_semesters, url, sep="&program_semester_id="
             ),
             1,
-            footer_buttons=buttons.back(url, "&program_id.*"),
+            footer_buttons=context.buttons.back(url, "&program_id.*"),
         )
         reply_markup = InlineKeyboardMarkup(menu)
 
@@ -87,28 +91,31 @@ async def enrollments_add(
         session.flush()
         success = await query.delete_message()
         if success:
-            await query.message.reply_html("You have been successfully enrolled 🎉!")
+            await query.message.reply_html(_("You have been enrolled"))
             if is_only_enrollment:
                 user.roles.append(queries.role(session, RoleName.STUDENT))
                 await set_my_commands(context.bot, user)
                 help_message = messages.help(
-                    user_roles={role.name for role in user.roles}, new=RoleName.STUDENT
+                    user_roles={role.name for role in user.roles},
+                    language_code=context.language_code,
+                    new=RoleName.STUDENT,
                 )
                 await query.message.reply_html(
-                    "Here is your updated list of commands\n"
-                    f"{'\n'.join(help_message.splitlines()[1:])}"
+                    _("Your commands have been Updated")
+                    + "\n"
+                    + f"{'\n'.join(help_message.splitlines()[1:])}"
                 )
             return None
     # enrollment creation has faild because user alread enrolled from another message
     except IntegrityError:
-        await query.message.reply_html("Oops, seems like you are already enrolled.")
+        await query.message.reply_html(_("Already enrolled"))
         return constants.ONE
 
 
 @session
 async def enrollment(
     update: Update,
-    context: ContextTypes.DEFAULT_TYPE,
+    context: CustomContext,
     session: Session,
     enrollment_id: Optional[int] = None,
 ) -> None:
@@ -143,27 +150,26 @@ async def enrollment(
     program_semesters = queries.program_semesters(
         session, enrollment_obj.program.id, level=level
     )
-    menu = buttons.program_semesters_list(
-        program_semesters,
-        url,
-        selected_ids=enrollment_obj.program_semester.id,
-        sep=f"/{constants.EDIT}?program_semester_id=",
-    )
-    message = messages.enrollment_text(enrollment=enrollment_obj)
-    keyboard = build_menu(
-        menu,
-        2,
-    )
+    message = messages.enrollment_text(enrollment=enrollment_obj, context=context)
 
     user_courses = queries.user_courses(
         session,
         program_id=enrollment_obj.program.id,
         semester_id=enrollment_obj.semester.id,
         user_id=context.user_data["id"],
+        sort_attr=(
+            Course.ar_name if context.language_code == constants.AR else Course.en_name
+        ),
     )
 
+    semester_buttons = context.buttons.program_semesters_list(
+        program_semesters,
+        url,
+        selected_ids=enrollment_obj.program_semester.id,
+        sep=f"/{constants.EDIT}?program_semester_id=",
+    )
     courses_url = f"{url}/{constants.COURSES}"
-    menu = buttons.courses_list(
+    courses_buttons = context.buttons.courses_list(
         user_courses,
         url=courses_url,
     )
@@ -172,18 +178,23 @@ async def enrollment(
         program_id=enrollment_obj.program.id,
         semester_id=enrollment_obj.semester.id,
     )
-    menu = (
-        [*menu, buttons.optional_courses(f"{courses_url}/{constants.OPTIONAL}")]
-        if has_optional_courses
-        else menu
-    )
-    keyboard += build_menu(menu, 1)
-    keyboard += [
+    courses_buttons += (
         [
-            buttons.back(url, f"/{constants.ENROLLMENTS}.*"),
-            buttons.disenroll(f"{url}/{constants.DELETE}"),
+            context.buttons.optional_courses(f"{courses_url}/{constants.OPTIONAL}"),
         ]
-    ]
+        if has_optional_courses
+        else []
+    )
+    keyboard = build_menu(
+        courses_buttons,
+        1,
+        header_buttons=semester_buttons,
+        footer_buttons=[
+            context.buttons.back(url, f"/{constants.ENROLLMENTS}.*"),
+            context.buttons.disenroll(f"{url}/{constants.DELETE}"),
+        ],
+        reverse=context.language_code == constants.AR,
+    )
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     await query.edit_message_text(
@@ -194,9 +205,7 @@ async def enrollment(
 
 
 @session
-async def enrollment_delete(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def enrollment_delete(update: Update, context: CustomContext, session: Session):
     """runs on ^{URLPREFIX}/{ENROLLMENTS}/(\d+)/{DELETE}$"""
 
     query = update.callback_query
@@ -212,13 +221,18 @@ async def enrollment_delete(
 
     menu_buttons: List
     message: str
+    _ = context.gettext
 
     if has_confirmed is None:
-        menu_buttons = buttons.delete_group(url=url)
-        message = messages.delete_confirm(f"Enrollment {year.start} - {year.end}")
+        menu_buttons = context.buttons.delete_group(url=url)
+        message = _("Delete warning {}").format(
+            bold(_("Enrollment {} - {}").format(year.start, year.end))
+        )
     elif has_confirmed == "0":
-        menu_buttons = buttons.confirm_delete_group(url=url)
-        message = messages.delete_reconfirm(f"Enrollment {year.start} - {year.end}")
+        menu_buttons = context.buttons.confirm_delete_group(url=url)
+        message = _("Confirm delete warning {}").format(
+            bold(_("Enrollment {} - {}").format(year.start, year.end))
+        )
     elif has_confirmed == "1":
         user = enrollment.user
         session.delete(enrollment)
@@ -236,11 +250,15 @@ async def enrollment_delete(
             user.roles.remove(queries.role(session, RoleName.STUDENT))
             await set_my_commands(context.bot, user)
         menu_buttons = [
-            buttons.back(
-                url, text="to Enrollmentss", pattern=rf"/{constants.ENROLLMENTS}.*"
+            context.buttons.back(
+                url, text=_("Your enrollments"), pattern=rf"/{constants.ENROLLMENTS}.*"
             )
         ]
-        message = messages.success_deleted(f"Enrollment {year.start} - {year.end}")
+        message = (
+            _("Success! {} deleted")
+            .format(_("Enrollment {} - {}"))
+            .format(year.start, year.end)
+        )
 
     keyboard = build_menu(menu_buttons, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)

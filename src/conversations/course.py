@@ -3,10 +3,11 @@ import re
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
-from telegram.ext import CallbackQueryHandler, ContextTypes, ConversationHandler
+from telegram.ext import CallbackQueryHandler, ConversationHandler
 
-from src import buttons, commands, constants, messages, queries
+from src import commands, constants, messages, queries
 from src.conversations.material import material
+from src.customcontext import CustomContext
 from src.models import MaterialType, UserOptionalCourse
 from src.utils import build_menu, session
 
@@ -14,7 +15,7 @@ from src.utils import build_menu, session
 
 
 @session
-async def course(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session):
+async def course(update: Update, context: CustomContext, session: Session):
     """
     Runs on callback_data `{PREFIX}/{constants.COURSES}/(?P<course_id>\d+)$`
     """
@@ -35,6 +36,7 @@ async def course(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Se
     material_groups = queries.course_material_types(
         session, course_id=course_id, year_id=enrollment.academic_year_id
     )
+    course = queries.course(session, course_id)
 
     lectures = (
         queries.lectures(
@@ -43,23 +45,26 @@ async def course(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Se
         if MaterialType.LECTURE in material_groups
         else []
     )
-    menu = buttons.material_list(f"{url}/{MaterialType.LECTURE}", lectures)
-    keyboard = build_menu(menu, 3)
+    menu = context.buttons.material_list(f"{url}/{MaterialType.LECTURE}", lectures)
+    keyboard = build_menu(menu, 3, reverse=context.language_code == constants.AR)
 
     keyboard.extend(
-        buttons.material_groups(
+        context.buttons.material_groups(
             url,
             groups=[m for m in material_groups if m != MaterialType.LECTURE],
         )
     )
 
-    keyboard += [[buttons.back(url, "/(\d+)$")]]
-
+    keyboard += [[context.buttons.back(url, "/(\d+)$")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
+    _ = context.gettext
+
     message = (
-        messages.title(context.match, session)
+        messages.title(context.match, session, context=context)
         + "\n"
-        + messages.course_text(context.match, session)
+        + _("t-symbol")
+        + "─ "
+        + course.get_name(context.language_code)
     )
 
     await query.edit_message_text(
@@ -70,9 +75,7 @@ async def course(update: Update, context: ContextTypes.DEFAULT_TYPE, session: Se
 
 
 @session
-async def optional_list(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-):
+async def optional_list(update: Update, context: CustomContext, session: Session):
     """Runs on callback_data
     `"({constants.COURSES_}|{constants.ENROLLMENT_})/{constants.ENROLLMENTS}
     /(?P<enrollment_id>\d+)/{constants.COURSES}/{constants.OPTIONAL}
@@ -94,6 +97,8 @@ async def optional_list(
     psc_id = context.match.group("psc_id")
     selected = bool(int(o)) if (o := context.match.group("selected")) else None
 
+    _ = context.gettext
+
     if psc_id is not None and selected is not None:
         if selected:
             user_course = UserOptionalCourse(
@@ -103,7 +108,7 @@ async def optional_list(
                 ),
             )
             session.add(user_course)
-            await query.answer("Course added")
+            await query.answer(_("Success! {} added").format(_("Course")))
         elif not selected:
             user_course = queries.user_optional_course(
                 session,
@@ -111,7 +116,7 @@ async def optional_list(
                 programs_semester_course_id=psc_id,
             )
             session.delete(user_course)
-            await query.answer("Course removed")
+            await query.answer(_("Success! {} removed").format(_("Course")))
 
     await query.answer()
     enrollment_id = context.match.group("enrollment_id")
@@ -129,7 +134,7 @@ async def optional_list(
     selected_ids = [
         optional.program_semester_course_id for optional in user_optional_courses
     ]
-    menu = buttons.program_semester_courses_list(
+    menu = context.buttons.program_semester_courses_list(
         program_optional_courses,
         url=url,
         sep="?psc_id=",
@@ -137,21 +142,20 @@ async def optional_list(
         selected_ids=selected_ids,
     )
     menu += [
-        buttons.back(url, pattern=rf"/{constants.OPTIONAL}$"),
+        context.buttons.back(url, pattern=rf"/{constants.OPTIONAL}$"),
     ]
 
     keyboard = build_menu(menu, 1)
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message = (
-        "These courses are optional. Select one or more to add to your /courses menu"
-    )
+    _ = context.gettext
+    message = _("Select optional courses")
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
     )
     return constants.ONE
 
 
-async def ignore(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def ignore(update: Update, context: CustomContext):
     """
     Runs on callback_data `{IGNORE}`
     """

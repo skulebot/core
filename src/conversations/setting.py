@@ -6,26 +6,27 @@ from typing import List
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
-from telegram.ext import CallbackQueryHandler, ContextTypes, ConversationHandler
+from telegram.ext import CallbackQueryHandler, ConversationHandler
 
-from src import buttons, commands, constants, messages, queries
+from src import commands, constants, queries
+from src.customcontext import CustomContext
+from src.messages import bold
 from src.models import SettingKey
-from src.utils import build_menu, get_setting_value, session, set_setting_value
+from src.utils import (
+    build_menu,
+    get_setting_value,
+    session,
+    set_my_commands,
+    set_setting_value,
+)
 
 # ------------------------- Callbacks -----------------------------
 
 URLPREFIX = constants.SETTINGS_
 
 
-# helperes
-def first_list_level(text: str):
-    return f"└── <b>{text}</b>"
-
-
 @session
-async def language(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
-) -> None:
+async def language(update: Update, context: CustomContext, session: Session) -> None:
     "Runs on `^{URLPREFIX}/{LANGUAGE}$`"
 
     query = update.callback_query
@@ -34,11 +35,11 @@ async def language(
     lang_code = queries.user(session, context.user_data["id"]).language_code
 
     menu = [
-        buttons.arabic(
+        context.buttons.arabic(
             f"{url}/{constants.EDIT}?lang={constants.AR}",
             selected=lang_code == constants.AR,
         ),
-        buttons.english(
+        context.buttons.english(
             f"{url}/{constants.EDIT}?lang={constants.EN}",
             selected=lang_code == constants.EN,
         ),
@@ -46,11 +47,21 @@ async def language(
     keyboard = build_menu(
         menu,
         2,
-        footer_buttons=buttons.back(url, f"/{constants.LANGUAGE}"),
+        footer_buttons=context.buttons.back(url, f"/{constants.LANGUAGE}"),
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    message = messages.bot_settings() + first_list_level("🌍 Language")
+    _ = context.gettext
+    message = (
+        _("t-symbol")
+        + " ⚙️ "
+        + bold(_("Bot Settings"))
+        + "\n"
+        + _("corner-symbol")
+        + "──  🌍 "
+        + bold(_("Language"))
+    )
+
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
     )
@@ -59,7 +70,7 @@ async def language(
 
 @session
 async def edit_language(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ) -> None:
     """Runs on callback_data
     `^{URLPREFIX}/{constants.LANGUAGE}/{constants.EDIT}
@@ -69,22 +80,24 @@ async def edit_language(
 
     new_lang_code = context.match.group("lang")
     user = queries.user(session, context.user_data["id"])
+    context.user_data["language_code"] = new_lang_code
     old_lang_code = user.language_code
+    _ = context.gettext
 
     if new_lang_code == old_lang_code:
-        await query.answer(messages.success_updated("Language"))
+        await query.answer(_("Success! {} updated").format(_("Language")))
         return constants.ONE
     user.language_code = new_lang_code
     session.flush()
-    context.user_data["language_code"] = user.language_code
-    await query.answer(messages.success_updated("Language"))
+    await set_my_commands(context.bot, user)
+    await query.answer(_("Success! {} updated").format(_("Language")))
 
     return await language.__wrapped__(update, context, session)
 
 
 @session
 async def notifications(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ) -> None:
     "Runs on callback_data `^{URLPREFIX}/{NOTIFICATIONS}$`"
     query = update.callback_query
@@ -98,7 +111,7 @@ async def notifications(
             session, context.user_data["id"], notification_setting
         )
         menu.append(
-            buttons.notification_setting_item(
+            context.buttons.notification_setting_item(
                 notification_setting,
                 f"{url}/{constants.EDIT}?{notification_setting.name}={int(not value)}",
                 selected=bool(value),
@@ -107,12 +120,21 @@ async def notifications(
     keyboard = build_menu(
         menu,
         3,
-        header_buttons=buttons.disable_all(f"{url}/{constants.EDIT}?all=0"),
-        footer_buttons=buttons.back(url, f"/{constants.NOTIFICATIONS}"),
+        header_buttons=context.buttons.disable_all(f"{url}/{constants.EDIT}?all=0"),
+        footer_buttons=context.buttons.back(url, f"/{constants.NOTIFICATIONS}"),
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    message = messages.bot_settings() + first_list_level("🔔 Notifications")
+    _ = context.gettext
+    message = (
+        _("t-symbol")
+        + " ⚙️ "
+        + bold(_("Bot Settings"))
+        + "\n"
+        + _("corner-symbol")
+        + "──  🔔 "
+        + bold(_("Notifications"))
+    )
     await query.edit_message_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
     )
@@ -121,13 +143,14 @@ async def notifications(
 
 @session
 async def edit_notification(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, session: Session
+    update: Update, context: CustomContext, session: Session
 ) -> None:
     "runs on ^{URLPREFIX}/{LANGUAGE}/{EDIT}(?:\?lang=(?P<lang>{AR}|{EN}))?$"
     query = update.callback_query
 
     # the SettingKey mamber name, or 'all' in case of Disable All was pressed
     name = context.match.group("name")
+    _ = context.gettext
 
     if name == "all":
         updated = False
@@ -137,23 +160,21 @@ async def edit_notification(
                 set_setting_value(session, context.user_data["id"], setting, False)
                 updated = True
         if not updated:
-            await query.answer("Done! All notifications are turned Off")
+            await query.answer(_("Success! All notifications are Off"))
             return constants.ONE
-        await query.answer("Done! All notifications are turned Off")
+        await query.answer(_("Success! All notifications are Off"))
         return await notifications.__wrapped__(update, context, session)
 
     new_value = bool(int(context.match.group("value")))
     setting_member = SettingKey[name]
     old_value = get_setting_value(session, context.user_data["id"], setting_member)
     if new_value == old_value:
-        await query.answer(
-            messages.success_updated(f"{name.capitalize()} notifications")
-        )
+        await query.answer(_("Done! Updated successfully"))
         return await notifications.__wrapped__(update, context, session)
     setting = set_setting_value(
         session, context.user_data["id"], setting_member, new_value
     )
-    await query.answer(messages.success_updated(f"{name.capitalize()} notifications"))
+    await query.answer(_("Done! Updated successfully"))
     return await notifications.__wrapped__(update, context, session)
 
 
