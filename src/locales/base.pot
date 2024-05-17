@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-16 17:07+0300\n"
+"POT-Creation-Date: 2024-05-17 03:41+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -137,11 +137,11 @@ msgstr ""
 msgid "Bot Settings"
 msgstr ""
 
-#: src/application.py:23 src/application.py:26
+#: src/application.py:30 src/application.py:33
 msgid "Bot bio"
 msgstr ""
 
-#: src/application.py:22 src/application.py:25
+#: src/application.py:29 src/application.py:32
 msgid "Bot description"
 msgstr ""
 
@@ -300,10 +300,6 @@ msgstr ""
 
 #: src/conversations/material/publish.py:254
 msgid "Done sending notifications"
-msgstr ""
-
-#: src/conversations/setting.py:172 src/conversations/setting.py:177
-msgid "Done! Updated successfully"
 msgstr ""
 
 #: src/buttons.py:712
@@ -611,6 +607,7 @@ msgid "Submit Proof"
 msgstr ""
 
 #: src/conversations/program.py:349 src/conversations/program.py:353
+#: src/conversations/setting.py:172 src/conversations/setting.py:177
 msgid "Success!"
 msgstr ""
 

@@ -169,12 +169,12 @@ async def edit_notification(
     setting_member = SettingKey[name]
     old_value = get_setting_value(session, context.user_data["id"], setting_member)
     if new_value == old_value:
-        await query.answer(_("Done! Updated successfully"))
+        await query.answer(_("Success!"))
         return await notifications.__wrapped__(update, context, session)
     setting = set_setting_value(
         session, context.user_data["id"], setting_member, new_value
     )
-    await query.answer(_("Done! Updated successfully"))
+    await query.answer(_("Success!"))
     return await notifications.__wrapped__(update, context, session)
 
 

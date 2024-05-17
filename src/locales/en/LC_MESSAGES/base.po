@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-16 17:07+0300\n"
+"POT-Creation-Date: 2024-05-17 03:41+0300\n"
 "PO-Revision-Date: 2024-05-07 12:56+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -79,7 +79,7 @@ msgstr "customize bot settings"
 
 #: src/constants.py:174
 msgid "/updatematerials description"
-msgstr "/updatematerials description"
+msgstr "upload content to current courses"
 
 #: src/conversations/academicyear.py:52
 msgid "Academic years"
@@ -144,11 +144,11 @@ msgstr "Back to {}"
 msgid "Bot Settings"
 msgstr "Bot Settings"
 
-#: src/application.py:23 src/application.py:26
+#: src/application.py:30 src/application.py:33
 msgid "Bot bio"
 msgstr "School of Math students’ bot"
 
-#: src/application.py:22 src/application.py:25
+#: src/application.py:29 src/application.py:32
 msgid "Bot description"
 msgstr ""
 "I can help you find stuff with ease.\n"
@@ -314,10 +314,6 @@ msgstr "Don't Notify"
 msgid "Done sending notifications"
 msgstr "Done sending notifications!"
 
-#: src/conversations/setting.py:172 src/conversations/setting.py:177
-msgid "Done! Updated successfully"
-msgstr ""
-
 #: src/buttons.py:712
 msgid "Edit {}"
 msgstr "Edit {}"
@@ -393,18 +389,19 @@ msgstr "Hell no"
 #: src/conversations/editor.py:105
 msgid "How editing works"
 msgstr ""
-"Thanks for helping update course materials!\n"
+"Thank you for lending a hand! 😊\n"
 "\n"
-"If you have somewhat stable internet connection, you can help upload "
-"materials so that you and your peers can easily find them. We are looking"
-" for people willing to be committed in the mid to long term, i.e. rather "
-"a full semester than a few days.\n"
-"Now to give you access, and since this bot is open for anyone, we need to"
-" verify that you're actually enrolled.\n"
+"If you've got a reasonably stable internet connection, we'd love your "
+"assistance with uploading content. We're looking for someone dedicated "
+"for the mid to long term, preferably a full semester or more!\n"
 "\n"
-"To do that there are two options. You could either send us <i>any</i> "
-"document that you  think proves this. Or if you don't have any, please "
-"contatct us."
+"Since this bot is accessible to everyone, we just need to make sure "
+"you're enrolled.\n"
+"\n"
+"No worries, though – we've got a couple of options for verification. You "
+"can either send over any document you think shows your enrollment, or if "
+"you don't have one handy, just reach out to us, and we'll sort it out "
+"together. 📚"
 
 #: src/buttons.py:1040
 msgid "January"
@@ -611,9 +608,7 @@ msgstr "Send files ({})"
 
 #: src/conversations/editor.py:134
 msgid "Send me your proof"
-msgstr ""
-"Alright. send me something that verfies you (uni ID card, students "
-"listing, ..etc.) (photo, document)"
+msgstr "Alright. send me something that verfies you (photo, document)"
 
 #: src/buttons.py:1048
 msgid "September"
@@ -646,6 +641,7 @@ msgid "Submit Proof"
 msgstr "Submit Proof"
 
 #: src/conversations/program.py:349 src/conversations/program.py:353
+#: src/conversations/setting.py:172 src/conversations/setting.py:177
 msgid "Success!"
 msgstr "Success!"
 
