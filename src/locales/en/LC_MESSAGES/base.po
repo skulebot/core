@@ -465,8 +465,7 @@ msgstr ""
 #: src/conversations/editor.py:111
 msgid "No id intro message {}"
 msgstr ""
-"Hi! I'd like to have access and upload materials in\n"
-"\n"
+"[publish request]\n"
 "{}"
 
 #: src/messages.py:179 src/messages.py:237

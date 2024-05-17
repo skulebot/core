@@ -456,13 +456,12 @@ msgstr "لا"
 
 #: src/commands.py:111
 msgid "No editor warning {}"
-msgstr "[لا أحد معه صلاحية النشر، يمكنك ان تصبح احدهم هنا /{}.]"
+msgstr "[لا أحد معه صلاحية النشر، يمكنك ان تصبح منهم هنا /{}.]"
 
 #: src/conversations/editor.py:111
 msgid "No id intro message {}"
 msgstr ""
-"سلام! عاوز صلاحية نشر في\n"
-"\n"
+"[صلاحية نشر]\n"
 "{}"
 
 #: src/messages.py:179 src/messages.py:237

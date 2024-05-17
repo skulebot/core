@@ -106,7 +106,7 @@ async def access_add(update: Update, context: CustomContext, session: Session) -
     keyboard = [
         [
             context.buttons.submit_proof(url=f"{url}/{constants.ID}"),
-            context.buttons.contact_support(
+            context.buttons.contact(
                 url="https://t.me/skulebotsupport"
                 "?text=" + _("No id intro message {}").format(enrollment_text)
             ),
@@ -181,6 +181,7 @@ async def receive_id_file(update: Update, context: CustomContext, session: Sessi
             context.buttons.grant_access(f"{url}?action={Status.GRANTED.value}"),
             context.buttons.reject(f"{url}?action={Status.REJECTED.value}"),
         ],
+        [context.buttons.contact(url=f"tg://user?id={user.id}")],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     sender = (

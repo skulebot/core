@@ -612,7 +612,7 @@ class Buttons:
         _ = self._gettext
         return InlineKeyboardButton(_("Submit Proof"), callback_data=url)
 
-    def contact_support(self, url: str):
+    def contact(self, url: str):
         _ = self._gettext
         return InlineKeyboardButton(
             _("Contact"),
