@@ -637,7 +637,7 @@ msgstr "Started sending notifications"
 
 #: src/buttons.py:613
 msgid "Submit Proof"
-msgstr "Submit Proof"
+msgstr "Send Proof"
 
 #: src/conversations/program.py:349 src/conversations/program.py:353
 #: src/conversations/setting.py:172 src/conversations/setting.py:177
