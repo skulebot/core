@@ -15,6 +15,8 @@ async def register_user(
     """This callback will be executed before every handler to make sure
     the user object exists in the database. when it doesn't exit we create it
     and cache it in `user_data`."""
+    if not (update.message or update.callback_query):
+        return
     if context.user_data.get("id") is None:
         telegram_id = update.effective_user.id
         chat_id = update.effective_chat.id

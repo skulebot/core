@@ -2,8 +2,9 @@
 for an application."""
 
 import os
+from typing import cast
 
-from telegram import Update
+from telegram import Chat, Update
 from telegram.ext import (
     Application,
     ApplicationHandlerStop,
@@ -51,10 +52,27 @@ def register_handlers(application: Application):
     async def raise_app_handler_stop(_: Update, __: ContextTypes.DEFAULT_TYPE) -> None:
         raise ApplicationHandlerStop
 
+    async def leave_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        context.application.create_task(
+            cast(Chat, update.effective_chat).leave(), update=update
+        )
+        raise ApplicationHandlerStop
+
     # Ignore updates from error error channel
     application.add_handler(
         MessageHandler(
             filters.Chat(chat_id=Config.ERROR_CHANNEL_CHAT_ID), raise_app_handler_stop
+        ),
+        group=-2,
+    )
+
+    # Leave all channels but error channel
+    application.add_handler(
+        MessageHandler(
+            filters.ChatType.CHANNEL
+            & ~filters.StatusUpdate.LEFT_CHAT_MEMBER
+            & ~(filters.Chat(chat_id=Config.ERROR_CHANNEL_CHAT_ID)),
+            leave_chat,
         ),
         group=-2,
     )
