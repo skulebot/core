@@ -49,5 +49,10 @@ async def register_user(
     ) != user.full_name:
         context.user_data["full_name"] = user.full_name
 
+    if (user := update.effective_user) and context.user_data.get(
+        "username"
+    ) != user.username:
+        context.user_data["username"] = user.username
+
 
 typehandler = TypeHandler(Update, callback=register_user)
