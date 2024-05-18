@@ -62,6 +62,8 @@ def roles(roles: RoleName):
                 roles = get_user_roles(context.user_data["id"], session)
                 if any(user_role in _roles for user_role in roles):
                     return await callback(update, context, *args, **kwargs)
+                if update.callback_query:
+                    await update.callback_query.answer()
                 return None
 
         return wrapped
