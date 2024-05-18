@@ -152,7 +152,7 @@ msgstr "بوت طلاب العلوم الرياضية"
 #: src/application.py:29 src/application.py:32
 msgid "Bot description"
 msgstr ""
-"أُساعدك في العثور على الأشياء.\n"
+"أُساعدك في العثور على محتويات المواد بصورة اكثر سهولة.\n"
 "\n"
 "في حال مواجهة اي صعوبات، نرجوا ان تتواصل مع @skulebotsupport"
 

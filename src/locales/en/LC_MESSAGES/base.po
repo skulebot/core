@@ -151,7 +151,7 @@ msgstr "School of Math students’ bot"
 #: src/application.py:29 src/application.py:32
 msgid "Bot description"
 msgstr ""
-"I can help you find stuff with ease.\n"
+"I can help you have easier access to your course materials.\n"
 "\n"
 "In case you encounter any difficulties please contact @skulebotsupport"
 
