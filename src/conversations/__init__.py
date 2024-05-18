@@ -23,17 +23,17 @@ from .setting import settings_
 from .updatematerial import updatematerials_
 
 handlers = [
+    usercourses_,
+    enrolments_,
+    settings_,
+    notifications_,
+    updatematerials_,
+    editor_,
     academicyear_,
     program_,
     department_,
     semester_,
-    notifications_,
-    enrolments_,
-    settings_,
     coursemanagement_,
     requestmanagement_,
-    usercourses_,
-    updatematerials_,
-    editor_,
     contentmanagement_,
 ]
