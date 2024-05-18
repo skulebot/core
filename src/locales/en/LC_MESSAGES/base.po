@@ -101,7 +101,7 @@ msgstr "Add {}"
 #: src/conversations/editor.py:173 src/conversations/requestmanagement.py:116
 msgid "Admin call for action {fullname} {mention} {enrollment}"
 msgstr ""
-"Publish Access request: {mention}\n"
+"Publish request: {mention}\n"
 "\n"
 "{fullname} is requesting publish access for\n"
 "{enrollment}"
