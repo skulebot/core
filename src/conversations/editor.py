@@ -20,7 +20,7 @@ from src.conversations.updatematerial import updatematerials_
 from src.customcontext import CustomContext
 from src.messages import bold, underline
 from src.models import AccessRequest, Course, File, RoleName, Status
-from src.utils import build_menu, roles, session, set_my_commands, user_locale
+from src.utils import build_menu, roles, session, set_my_commands
 
 # ------------------------- Callbacks -----------------------------
 
@@ -170,6 +170,11 @@ async def receive_id_file(update: Update, context: CustomContext, session: Sessi
     session.add(request)
 
     _ = context.gettext
+    caption = _("Admin call for action {fullname} {mention} {enrollment}").format(
+        fullname=user.full_name,
+        mention=user.mention_html(),
+        enrollment=messages.enrollment_text(enrollment=enrollment, context=context),
+    )
     url = f"{constants.REQUEST_MANAGEMENT_}/{constants.ACCESSREQUSTS}/{request.id}"
     keyboard = [
         [
@@ -185,16 +190,6 @@ async def receive_id_file(update: Update, context: CustomContext, session: Sessi
         else (context.bot.send_photo)
     )
     for id_ in Config.ROOTIDS:
-        user_data = await context.application.persistence.get_user_data()
-        language_code = user_data.get("language_code")
-        gettext = user_locale(language_code).gettext
-        caption = gettext(
-            "Admin call for action {fullname} {mention} {enrollment}"
-        ).format(
-            fullname=user.full_name,
-            mention=user.mention_html(),
-            enrollment=messages.enrollment_text(enrollment=enrollment, context=context),
-        )
         await sender(
             id_,
             file_id,
