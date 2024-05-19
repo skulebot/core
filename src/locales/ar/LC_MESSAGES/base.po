@@ -168,7 +168,7 @@ msgstr "المنهج"
 
 #: src/messages.py:60
 msgid "Commands"
-msgstr "الاوامر"
+msgstr "الأوامر"
 
 #: src/conversations/academicyear.py:189
 #: src/conversations/coursemanagement.py:494
