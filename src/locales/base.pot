@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-17 03:41+0300\n"
+"POT-Creation-Date: 2024-05-19 05:19+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -84,8 +84,8 @@ msgstr ""
 msgid "Academic years"
 msgstr ""
 
-#: src/conversations/editor.py:332 src/conversations/editor.py:339
-#: src/conversations/editor.py:364
+#: src/conversations/editor.py:344 src/conversations/editor.py:351
+#: src/conversations/editor.py:376
 msgid "Access for year {}"
 msgstr ""
 
@@ -97,8 +97,12 @@ msgstr ""
 msgid "Add {}"
 msgstr ""
 
-#: src/conversations/editor.py:173 src/conversations/requestmanagement.py:116
+#: src/conversations/editor.py:183 src/conversations/requestmanagement.py:116
 msgid "Admin call for action {fullname} {mention} {enrollment}"
+msgstr ""
+
+#: src/conversations/editor.py:138
+msgid "Already applied for access"
 msgstr ""
 
 #: src/conversations/enrollment.py:111
@@ -137,11 +141,11 @@ msgstr ""
 msgid "Bot Settings"
 msgstr ""
 
-#: src/application.py:30 src/application.py:33
+#: src/application.py:31 src/application.py:34
 msgid "Bot bio"
 msgstr ""
 
-#: src/application.py:29 src/application.py:32
+#: src/application.py:30 src/application.py:33
 msgid "Bot description"
 msgstr ""
 
@@ -167,7 +171,7 @@ msgstr ""
 msgid "Confirm delete warning {}"
 msgstr ""
 
-#: src/conversations/editor.py:338
+#: src/conversations/editor.py:350
 msgid "Confirm revoke {}"
 msgstr ""
 
@@ -306,8 +310,8 @@ msgstr ""
 msgid "Edit {}"
 msgstr ""
 
-#: src/conversations/editor.py:53 src/conversations/editor.py:295
-#: src/conversations/editor.py:359 src/messages.py:119
+#: src/conversations/editor.py:53 src/conversations/editor.py:307
+#: src/conversations/editor.py:371 src/messages.py:119
 msgid "Editor Access"
 msgstr ""
 
@@ -523,7 +527,7 @@ msgstr ""
 msgid "Revoke Access"
 msgstr ""
 
-#: src/conversations/editor.py:331
+#: src/conversations/editor.py:343
 msgid "Revoke {}"
 msgstr ""
 
@@ -572,7 +576,7 @@ msgstr ""
 msgid "Send files ({})"
 msgstr ""
 
-#: src/conversations/editor.py:134
+#: src/conversations/editor.py:144
 msgid "Send me your proof"
 msgstr ""
 
@@ -659,7 +663,7 @@ msgstr ""
 msgid "Success! {} removed"
 msgstr ""
 
-#: src/conversations/editor.py:363
+#: src/conversations/editor.py:375
 msgid "Success! {} revoked"
 msgstr ""
 
@@ -684,7 +688,7 @@ msgstr ""
 msgid "Sun"
 msgstr ""
 
-#: src/conversations/editor.py:200
+#: src/conversations/editor.py:211
 msgid "Thanks for applying {}"
 msgstr ""
 
@@ -775,7 +779,7 @@ msgstr ""
 msgid "Your enrollments"
 msgstr ""
 
-#: src/conversations/editor.py:223
+#: src/conversations/editor.py:235
 msgid "Your request is pending"
 msgstr ""
 

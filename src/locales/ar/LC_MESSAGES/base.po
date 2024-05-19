@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-17 03:41+0300\n"
+"POT-Creation-Date: 2024-05-19 05:19+0300\n"
 "PO-Revision-Date: 2024-05-07 16:04+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ar\n"
@@ -86,8 +86,8 @@ msgstr "رفع محتويات للمواد الحالية"
 msgid "Academic years"
 msgstr "الاعوام الاكاديمية"
 
-#: src/conversations/editor.py:332 src/conversations/editor.py:339
-#: src/conversations/editor.py:364
+#: src/conversations/editor.py:344 src/conversations/editor.py:351
+#: src/conversations/editor.py:376
 msgid "Access for year {}"
 msgstr "صلاحية النشر {}"
 
@@ -99,13 +99,17 @@ msgstr "تفعيل"
 msgid "Add {}"
 msgstr "اضافة {}"
 
-#: src/conversations/editor.py:173 src/conversations/requestmanagement.py:116
+#: src/conversations/editor.py:183 src/conversations/requestmanagement.py:116
 msgid "Admin call for action {fullname} {mention} {enrollment}"
 msgstr ""
 "طلب صلاحية نشر: {mention}\n"
 "\n"
 "يطلب {fullname} صلاحية للنشر في التسجيل\n"
 "{enrollment}"
+
+#: src/conversations/editor.py:138
+msgid "Already applied for access"
+msgstr "يبدو أنه يوجد طلب من قبل! استخدم /publish لمتابعة الحالة."
 
 #: src/conversations/enrollment.py:111
 msgid "Already enrolled"
@@ -145,11 +149,11 @@ msgstr "رجوع ل{}"
 msgid "Bot Settings"
 msgstr "اعدادات البوت"
 
-#: src/application.py:30 src/application.py:33
+#: src/application.py:31 src/application.py:34
 msgid "Bot bio"
 msgstr "بوت طلاب العلوم الرياضية"
 
-#: src/application.py:29 src/application.py:32
+#: src/application.py:30 src/application.py:33
 msgid "Bot description"
 msgstr ""
 "أُساعدك في العثور على محتويات المواد بصورة اكثر سهولة.\n"
@@ -178,7 +182,7 @@ msgstr "الأوامر"
 msgid "Confirm delete warning {}"
 msgstr "هل انت متاكد <b>تماماَ</b> انك تود ان تحذف {}؟"
 
-#: src/conversations/editor.py:338
+#: src/conversations/editor.py:350
 msgid "Confirm revoke {}"
 msgstr "هل انت متاكد <b>تماماَ</b> انك تود ان تسحب {}؟"
 
@@ -319,8 +323,8 @@ msgstr "تم ارسال التنبيهات!"
 msgid "Edit {}"
 msgstr "تعديل {}"
 
-#: src/conversations/editor.py:53 src/conversations/editor.py:295
-#: src/conversations/editor.py:359 src/messages.py:119
+#: src/conversations/editor.py:53 src/conversations/editor.py:307
+#: src/conversations/editor.py:371 src/messages.py:119
 msgid "Editor Access"
 msgstr "صلاحيات النشر"
 
@@ -550,7 +554,7 @@ msgstr "اجباري"
 msgid "Revoke Access"
 msgstr "سحب الصلاحية"
 
-#: src/conversations/editor.py:331
+#: src/conversations/editor.py:343
 msgid "Revoke {}"
 msgstr "انت على وشك ان تسحب {}. هل هذا صحيح؟"
 
@@ -599,7 +603,7 @@ msgstr "السمسترات"
 msgid "Send files ({})"
 msgstr "ارسل الملفات ({})"
 
-#: src/conversations/editor.py:134
+#: src/conversations/editor.py:144
 msgid "Send me your proof"
 msgstr "حسناً. ارسل ما ياكد تسجيلك (صورة، ملف)"
 
@@ -686,7 +690,7 @@ msgstr "نجاح! تم نشر {}"
 msgid "Success! {} removed"
 msgstr "نجاح! تم حذف {}"
 
-#: src/conversations/editor.py:363
+#: src/conversations/editor.py:375
 msgid "Success! {} revoked"
 msgstr "نجاح! تم سحب {}"
 
@@ -711,7 +715,7 @@ msgstr "نجاح! تم تحديث {}"
 msgid "Sun"
 msgstr "أحد"
 
-#: src/conversations/editor.py:200
+#: src/conversations/editor.py:211
 msgid "Thanks for applying {}"
 msgstr ""
 "مجهودك مقدّر! استلمنا طلبك وسنعاودك الاتصال قريبا.\n"
@@ -805,7 +809,7 @@ msgstr "هذه قائمة محدثة من الأوامر. يمكنك عرضها 
 msgid "Your enrollments"
 msgstr "التسجيل"
 
-#: src/conversations/editor.py:223
+#: src/conversations/editor.py:235
 msgid "Your request is pending"
 msgstr "طلبك قيد الاجراء. سنعاودك الاتصال قريباً. مع الشكر"
 
