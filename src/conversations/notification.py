@@ -67,7 +67,7 @@ async def material(
         + "\n│ "
         + _("corner-symbol")
         + "── "
-        + messages.material_title_text(context.match, material, context)
+        + messages.material_title_text(context.match, material, context.language_code)
     )
 
     await query.edit_message_text(
@@ -102,7 +102,7 @@ async def collapse_material(
         + "\n│ "
         + _("corner-symbol")
         + "── "
-        + messages.material_title_text(context.match, material, context)
+        + messages.material_title_text(context.match, material, context.language_code)
     )
     keyboard = [
         [context.buttons.show_more(f"{URLPREFIX}/{material.type}/{material.id}")]

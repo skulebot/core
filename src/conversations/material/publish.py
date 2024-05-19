@@ -8,6 +8,7 @@ from telegram.constants import ParseMode
 from telegram.error import Forbidden
 
 from src import constants, messages, queries
+from src.buttons import ar_buttons, en_buttons
 from src.customcontext import CustomContext
 from src.database import Session as DBSession
 from src.models import (
@@ -49,7 +50,9 @@ async def handler(update: Update, context: CustomContext, session: Session, back
         await query.answer(_("Can't publish no files"))
         return constants.ONE
 
-    material_title = messages.material_title_text(context.match, material, context)
+    material_title = messages.material_title_text(
+        context.match, material, context.language_code
+    )
 
     if material.published:
         await query.answer(_("Already published").format(material_title))
@@ -212,6 +215,8 @@ async def send_notification(context: CustomContext) -> None:
             job.chat_id, text=context.gettext("Started sending notifications")
         )
 
+    buttons = ar_buttons if user.language_code == constants.AR else en_buttons
+
     with DBSession.begin() as session:
         session.add_all([material, user])
         with contextlib.suppress(Forbidden):
@@ -223,7 +228,9 @@ async def send_notification(context: CustomContext) -> None:
                 + translation.gettext("corner-symbol")
                 + "── "
                 + (
-                    messages.material_title_text(context.match, material, context)
+                    messages.material_title_text(
+                        context.match, material, user.language_code
+                    )
                     if not isinstance(material, SingleFile)
                     else translation.gettext(material.type)
                 )
@@ -231,7 +238,7 @@ async def send_notification(context: CustomContext) -> None:
 
             keyboard = [
                 [
-                    context.buttons.show_more(
+                    buttons.show_more(
                         f"{constants.NOTIFICATION_}/{material.type}/{material.id}"
                     )
                 ]
@@ -239,7 +246,7 @@ async def send_notification(context: CustomContext) -> None:
             if isinstance(material, (Review, SingleFile)):
                 keyboard = [
                     [
-                        context.buttons.material(
+                        buttons.material(
                             f"{constants.NOTIFICATION_}/{material.type}", material
                         )
                     ]

@@ -204,9 +204,9 @@ def material_message_text(
 def material_title_text(
     match: Optional[re.Match] = None,
     material: Material = None,
-    context: CustomContext = None,
+    language_code: Optional[str] = None,
 ):
-    _ = context.gettext if context else pygettext.gettext
+    _ = user_locale(language_code).gettext
     if not material:
         m_type: str = _(match.group("material_type"))
     else:
@@ -218,11 +218,8 @@ def material_title_text(
     if isinstance(material, SingleFile):
         return m_type + " " + str(material.file.name)
     if isinstance(material, Review):
-        return (
-            m_type
-            + " "
-            + str(material.get_name(context.language_code))
-            + (" " + str(d.year) if (d := material.date) else "")
+        return +str(material.get_name(language_code)) + (
+            " " + str(d.year) if (d := material.date) else ""
         )
     return None
 

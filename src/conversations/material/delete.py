@@ -37,7 +37,9 @@ async def handler(update: Update, context: CustomContext, session: Session):
     material = session.get(Material, material_id)
     course = material.course
 
-    material_title = messages.material_title_text(context.match, material, context)
+    material_title = messages.material_title_text(
+        context.match, material, context.language_code
+    )
 
     _ = context.gettext
 
