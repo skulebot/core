@@ -49,7 +49,7 @@ async def material(
 
     if isinstance(material, RefFilesMixin):
         menu_files = session.scalars(
-            select(File).where(File.material_id == material.id)
+            select(File).where(File.material_id == material.id).order_by(File.name)
         ).all()
         files_menu = context.buttons.files_list(f"{url}/{constants.FILES}", menu_files)
         keyboard += build_menu(files_menu, 1)
