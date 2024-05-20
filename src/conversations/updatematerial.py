@@ -2,6 +2,7 @@
 
 import re
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from telegram import CallbackQuery, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
@@ -11,13 +12,30 @@ from src import constants, messages, queries
 from src.conversations.material import material
 from src.customcontext import CustomContext
 from src.messages import underline
-from src.models import Course, MaterialType, RoleName, UserOptionalCourse
+from src.models import Course, File, MaterialType, RoleName, Tool, UserOptionalCourse
 from src.utils import build_menu, roles, session
 
 URLPREFIX = constants.UPDATE_MATERIALS_
 """Used as a prefix for all `callback data` in this conversation"""
 
 # ------------------------------- entry_points ---------------------------
+
+
+def temp_delete_research_methodology_tools(session: Session):
+    tools = session.scalars(
+        select(Tool)
+        .join(Course, Course.id == Tool.course_id)
+        .join(File, File.id == Tool.file_id)
+        .where(
+            Course.en_name == "Research Methodology",
+            File.name.not_in(
+                ["xmind-8-update9-macosx.dmg", "xmind-8-update9-windows.exe"]
+            ),
+        )
+    )
+    for tool in tools:
+        print(tool.file.name)
+        session.delete(tool)
 
 
 @roles(RoleName.EDITOR)
@@ -30,6 +48,8 @@ async def update_materials(update: Update, context: CustomContext, session: Sess
     if update.callback_query:
         query = update.callback_query
         await query.answer()
+
+    temp_delete_research_methodology_tools(session)
 
     access = queries.user_most_recent_access(session, context.user_data["id"])
 
