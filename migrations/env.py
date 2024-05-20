@@ -1,8 +1,8 @@
-from logging.config import fileConfig  # noqa: INP001
-
-from sqlalchemy import engine_from_config, pool
+from logging.config import fileConfig
 
 from alembic import context
+from sqlalchemy import engine_from_config, pool
+
 from src.config import Config
 from src.models.base import Base
 
