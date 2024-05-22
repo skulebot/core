@@ -32,7 +32,11 @@ async def edit(update: Update, context: CustomContext, session: Session):
     material_id = int(context.match.group("material_id"))
     material = session.get(Assignment, material_id)
     course = material.course
-    deadline = m.date() if (m := material.deadline) else None
+    deadline = (
+        m.astimezone(ZoneInfo("Africa/Khartoum")).date()
+        if (m := material.deadline)
+        else None
+    )
     path = re.search(
         rf".*/{constants.EDIT}/{constants.DEADLINE}", context.match.group()
     ).group()
@@ -109,8 +113,7 @@ async def receive_time(update: Update, context: CustomContext, session: Session)
     day = int(match.group("d"))
 
     d = datetime(year, month, day, hour, minute, tzinfo=ZoneInfo("Africa/Khartoum"))
-    d = d.astimezone(timezone.utc)
-    material.deadline = d
+    material.deadline = d.astimezone(timezone.utc)
 
     message = _("Success! Deadline set {}").format(
         format_datetime(d, "E d MMM hh:mm a ZZZZ", locale=context.language_code)
