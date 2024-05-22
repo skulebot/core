@@ -1,7 +1,6 @@
 """Contains callbacks and handlers for the /editorship conversaion"""
 
 import re
-from typing import List
 
 from sqlalchemy.orm import Session
 from telegram import CallbackQuery, Document, InlineKeyboardMarkup, Update
@@ -337,7 +336,7 @@ async def revoke_access(update: Update, context: CustomContext, session: Session
     year = enrollment.academic_year
     has_confirmed = context.match.group("has_confirmed")
 
-    menu_buttons: List
+    menu_buttons: list
     message: str
     _ = context.gettext
 

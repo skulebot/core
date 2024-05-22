@@ -31,7 +31,7 @@ Entry points:
 
 import re
 from functools import partial
-from typing import List, Optional
+from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -224,7 +224,7 @@ async def material(
             update, context, session, file_id=material.file_id
         )
 
-    keyboard: List[List] = []
+    keyboard: list[list] = []
     # First, list the files if material have them
     if isinstance(material, RefFilesMixin):
         menu_files = session.scalars(

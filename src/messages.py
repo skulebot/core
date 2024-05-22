@@ -1,6 +1,7 @@
 import gettext as pygettext
 import re
-from typing import Optional, Set
+from typing import Optional
+from zoneinfo import ZoneInfo
 
 from babel.dates import format_datetime
 from sqlalchemy.orm import Session
@@ -49,7 +50,7 @@ def underline(text):
 
 
 def help(
-    user_roles: Set[RoleName],
+    user_roles: set[RoleName],
     language_code: str,
     new: Optional[RoleName] = None,
 ):
@@ -174,8 +175,8 @@ def material_message_text(
     material_type = _(material.type)
     if isinstance(material, Assignment):
         datestr = (
-            format_datetime(d, "E d MMM hh:mm a", locale=context.language_code)
-            if (d := material.deadline)
+            format_datetime(d, "E d MMM hh:mm a ZZZZ", locale=context.language_code)
+            if (d := material.deadline.astimezone(ZoneInfo("Africa/Khartoum")))
             else "[" + _("No value") + "]"
         )
         text = f"{material_type} {material.number} " + _("due by") + f" {datestr}"

@@ -1,8 +1,9 @@
 import calendar
 import random
 import re
+from collections.abc import Sequence
 from datetime import date, datetime, timedelta
-from typing import Callable, Dict, List, NamedTuple, Optional, Sequence, Union
+from typing import Callable, NamedTuple, Optional, Union
 
 from babel.dates import format_date
 from telegram import InlineKeyboardButton
@@ -94,8 +95,8 @@ class Buttons:
         )
 
     def access_requests_list(
-        self, access_requests: List[AccessRequest], url: str
-    ) -> List[InlineKeyboardButton]:
+        self, access_requests: list[AccessRequest], url: str
+    ) -> list[InlineKeyboardButton]:
         """Builds a list of :class:`InlineKeyboardButton` for model
         :class:`AccessRequest` with
             * `InlineKeyboardButton.text = access_request.year.start -
@@ -126,10 +127,10 @@ class Buttons:
 
     async def access_requests_list_chat_name(
         self,
-        access_requests: List[AccessRequest],
+        access_requests: list[AccessRequest],
         url: str,
         context: ContextTypes.DEFAULT_TYPE,
-    ) -> List[InlineKeyboardButton]:
+    ) -> list[InlineKeyboardButton]:
         """Builds a list of :class:`InlineKeyboardButton` for model
         :class:`AccessRequest` with
             * `InlineKeyboardButton.text = access_request.year.start -
@@ -194,7 +195,7 @@ class Buttons:
 
     def program_semesters_list(
         self,
-        program_semesters: List[ProgramSemester],
+        program_semesters: list[ProgramSemester],
         url: str,
         selected_ids: Optional[Union[int, Sequence[int]]] = None,
         sep: str = "/",
@@ -230,7 +231,7 @@ class Buttons:
 
     def program_levels_list(
         self,
-        program_semesters: List[ProgramSemester],
+        program_semesters: list[ProgramSemester],
         url: str,
         sep: str = "/",
     ):
@@ -264,7 +265,7 @@ class Buttons:
 
     def departments_list(
         self,
-        departments: List[Department],
+        departments: list[Department],
         url: str,
         sep: str = "/",
         selected_id: Optional[int] = None,
@@ -362,11 +363,11 @@ class Buttons:
 
     def courses_list(
         self,
-        courses: List[Course],
+        courses: list[Course],
         url: str,
         sep: str = "/",
         end: str = "",
-        selected_ids: Optional[List[int]] = None,
+        selected_ids: Optional[list[int]] = None,
     ):
         """Builds a list of :class:`InlineKeyboardButton` for model :class:`Course` with
         `InlineKeyboardButton.text = Course.{ar/en}_name` and
@@ -379,7 +380,7 @@ class Buttons:
             end (:obj:`str`, optional): some further :paramref:`callback_data` to append
                 after `/{Course.id}`.
             sep (:obj:`str`): String to append  to :paramref:`url`. Defaults to `"\\"`
-            selected_id (List[:obj:`int`], optional): An id of a course
+            selected_id (list[:obj:`int`], optional): An id of a course
                 n :paramref:`courses` to mark as selected. This will produce a green
                 checkmark next to the button title.
         """
@@ -394,9 +395,9 @@ class Buttons:
 
     def program_courses(
         self,
-        courses: List[Course],
+        courses: list[Course],
         url: str,
-        course_semester: Dict[int, int],
+        course_semester: dict[int, int],
         sep: str = "/",
         end: str = "",
     ):
@@ -411,7 +412,7 @@ class Buttons:
             end (:obj:`str`, optional): some further :paramref:`callback_data` to append
                 after `/{Course.id}`.
             sep (:obj:`str`): String to append  to :paramref:`url`. Defaults to `"\\"`
-            selected_id (List[:obj:`int`], optional): An id of a course
+            selected_id (list[:obj:`int`], optional): An id of a course
                 n :paramref:`courses` to mark as selected. This will produce a green
                 checkmark next to the button title.
         """
@@ -436,11 +437,11 @@ class Buttons:
 
     def program_semester_courses_list(
         self,
-        program_semester_courses: List[ProgramSemesterCourse],
+        program_semester_courses: list[ProgramSemesterCourse],
         url: str,
         sep: str = "/",
         end: Union[str, Callable[[ProgramSemesterCourse], str]] = "",
-        selected_ids: Optional[List[int]] = None,
+        selected_ids: Optional[list[int]] = None,
     ):
         """Builds a list of :class:`InlineKeyboardButton` for model :class:`Course` with
         `InlineKeyboardButton.text = Course.{ar/en}_name` and
@@ -453,7 +454,7 @@ class Buttons:
             end (:obj:`str`, optional): some further :paramref:`callback_data` to append
                 after `/{Course.id}`.
             sep (:obj:`str`): String to append  to :paramref:`url`. Defaults to `"\\"`
-            selected_id (List[:obj:`int`], optional): An id of a course
+            selected_id (list[:obj:`int`], optional): An id of a course
                 n :paramref:`courses` to mark as selected. This will produce a green
                 checkmark next to the button title.
         """
@@ -512,15 +513,15 @@ class Buttons:
         )
 
     # TODO: add docs
-    def material_list(self, url: str, materials: List[Material]):
+    def material_list(self, url: str, materials: list[Material]):
         return [self.material(url, m) for m in materials]
 
     # TODO: add docs
     def material_groups(
-        self, url: str, groups: List[MaterialType]
-    ) -> List[List[InlineKeyboardButton]]:
+        self, url: str, groups: list[MaterialType]
+    ) -> list[list[InlineKeyboardButton]]:
         _ = self._gettext
-        keyboard: List[List[InlineKeyboardButton]] = []
+        keyboard: list[list[InlineKeyboardButton]] = []
         first_row = []
         second_row = []
         third_row = []
@@ -570,7 +571,7 @@ class Buttons:
                 row.reverse()
         return keyboard
 
-    def files_list(self, url: str, files: List[File]):
+    def files_list(self, url: str, files: list[File]):
         return [
             InlineKeyboardButton(
                 f"{file.name}",
@@ -933,7 +934,7 @@ class Buttons:
         return buttons
 
     class Picker(NamedTuple):
-        keyboard: List[List[InlineKeyboardButton]]
+        keyboard: list[list[InlineKeyboardButton]]
         date_time: Optional[datetime]
 
     def datepicker(self, match: re.Match, selected: Optional[date] = None) -> Picker:
@@ -953,7 +954,7 @@ class Buttons:
             elif selected:
                 year, month = selected.year, selected.month
 
-        keyboard: List[List[InlineKeyboardButton]] = None
+        keyboard: list[list[InlineKeyboardButton]] = None
         date_time: datetime = None
         _ = self._gettext
         if year and month and not day:

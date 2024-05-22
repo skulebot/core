@@ -1,4 +1,5 @@
-from typing import List, Optional, Sequence, Union
+from collections.abc import Sequence
+from typing import Optional, Union
 
 from sqlalchemy import and_, case, or_, select
 from sqlalchemy.orm import InstrumentedAttribute, Session, aliased
@@ -46,7 +47,7 @@ def semesters(
 
 
     Returns:
-        List[:obj:`Semester`]
+        list[:obj:`Semester`]
 
     """
 
@@ -151,7 +152,7 @@ def role(session: Session, role_name: RoleName) -> Role:
 def access_requests(
     session: Session,
     status: Optional[Union[Status, Sequence[Status]]] = None,
-) -> List[AccessRequest]:
+) -> list[AccessRequest]:
     """
     Query all :obj:`AccessRequest`s.
 
@@ -161,7 +162,7 @@ def access_requests(
             filter against
 
     Returns:
-        List[:obj:`AccessRequest`]
+        list[:obj:`AccessRequest`]
     """
     if status and isinstance(status, Status):
         status = (status,)
@@ -193,7 +194,7 @@ def user_access_requests(
     session: Session,
     user_id: int,
     status: Optional[Union[Status, Sequence[Status]]] = None,
-) -> List[AccessRequest]:
+) -> list[AccessRequest]:
     """
     Query muliple :obj:`AccessRequest`s of a specific user.
 
@@ -204,7 +205,7 @@ def user_access_requests(
             filter against
 
     Returns:
-        List[:obj:`AccessRequest`]
+        list[:obj:`AccessRequest`]
     """
     if status and isinstance(status, Status):
         status = (status,)
@@ -254,7 +255,7 @@ def programs(session: Session):
         session (:obj:`Session`): An `sqlalchemy.orm.Session` instance.
 
     Returns:
-        List[:obj:`Program`]
+        list[:obj:`Program`]
     """
     return session.query(Program).all()
 
@@ -323,7 +324,7 @@ def user_courses(
     semester_id: int,
     user_id: int,
     sort_attr: InstrumentedAttribute[str] = Course.en_name,
-) -> List[Course]:
+) -> list[Course]:
     """
     Query multiple :obj:`Course`s that are relevant to user in a specific program
     and smemster. This will  include all required courses plus optional courses that
@@ -417,7 +418,7 @@ def all_have_editors(
     return set(course_ids) == set(courses_with_editors)
 
 
-def academic_years(session: Session) -> List[AcademicYear]:
+def academic_years(session: Session) -> list[AcademicYear]:
     """
     Query all :obj:`AcademicYear`s
 
@@ -425,7 +426,7 @@ def academic_years(session: Session) -> List[AcademicYear]:
         session (:obj:`Session`): An `sqlalchemy.orm.Session` instance.
 
     Returns:
-        List[:obj:`AcademicYear`]
+        list[:obj:`AcademicYear`]
 
     """
     return session.query(AcademicYear).order_by(AcademicYear.start.desc()).all()
@@ -463,7 +464,7 @@ def academic_year(
     return session.query(AcademicYear).order_by(AcademicYear.start.desc()).first()
 
 
-def user_enrollments(session: Session, user_id: int) -> List[Enrollment]:
+def user_enrollments(session: Session, user_id: int) -> list[Enrollment]:
     """
     Query :class:`Enrollment`s of a particular user sorted descendingly by
     `academic_year.start`.
@@ -522,7 +523,7 @@ def enrollment(session: Session, enrollment_id: int) -> Enrollment:
 
 def department_courses(
     session: Session, department_id: Optional[int] = None
-) -> List[Course]:
+) -> list[Course]:
     """
     Query multiple :obj:`Course`s of a particular `Department` sorted descendingly by
     `Course.en_name`.
@@ -532,7 +533,7 @@ def department_courses(
         department_id (:obj:`int`, optional): The department id to filter against`
 
     Returns:
-        List[:obj:`Course`]:
+        list[:obj:`Course`]:
 
     """
     return session.scalars(
@@ -577,7 +578,7 @@ def program_semester_courses(
     program_id: int,
     semester_id: Optional[int] = None,
     optional: Optional[bool] = None,
-) -> List[ProgramSemesterCourse]:
+) -> list[ProgramSemesterCourse]:
     """
     Query multiple :obj:`ProgramSemesterCourse`s of a particular `Program` and
     in a particular `Semester`.
@@ -588,7 +589,7 @@ def program_semester_courses(
         semester_id (:obj:`int`, optional): The semester id to filter against`
 
     Returns:
-        List[:obj:`ProgramSemesterCourse`]:
+        list[:obj:`ProgramSemesterCourse`]:
 
     """
     filters = []
@@ -628,7 +629,7 @@ def program_semester_course(
         program_semester_course_id (:obj:`int`, optional): The id to filter against.
 
     Returns:
-        List[:obj:`ProgramSemesterCourse`]:
+        list[:obj:`ProgramSemesterCourse`]:
 
     """
     if program_semester_course_id is not None and any([program_id, course_id]):
@@ -652,7 +653,7 @@ def program_semesters(
     program_id: int,
     available: Optional[bool] = None,
     level: Optional[int] = None,
-) -> List[ProgramSemester]:
+) -> list[ProgramSemester]:
     """
     Query multiple :obj:`ProgramSemester`s.
 
@@ -665,7 +666,7 @@ def program_semesters(
             to return
 
     Returns:
-        List[:obj:`ProgramSemester`]:
+        list[:obj:`ProgramSemester`]:
 
     """
     filters = []
@@ -727,7 +728,7 @@ def program_semester(
     )
 
 
-def course_material_types(session: Session, course_id: int, year_id: int) -> List[str]:
+def course_material_types(session: Session, course_id: int, year_id: int) -> list[str]:
     """
     Query :obj:`Material.type`s of a given course in a given  year.
 
@@ -737,7 +738,7 @@ def course_material_types(session: Session, course_id: int, year_id: int) -> Lis
         year_id (:obj:`int`): The year id.
 
     Returns:
-        List[:obj:`str`]
+        list[:obj:`str`]
     """
     return session.scalars(
         select(Material.type)
@@ -750,7 +751,7 @@ def course_material_types(session: Session, course_id: int, year_id: int) -> Lis
     ).all()
 
 
-def lectures(session: Session, course_id: int, year_id: int) -> List[str]:
+def lectures(session: Session, course_id: int, year_id: int) -> list[str]:
     """
     Query :obj:`Lecture`s of a given course in a given  year.
 
@@ -760,7 +761,7 @@ def lectures(session: Session, course_id: int, year_id: int) -> List[str]:
         year_id (:obj:`int`): The year id.
 
     Returns:
-        List[:obj:`str`]
+        list[:obj:`str`]
     """
     return session.scalars(
         select(Lecture)
@@ -773,7 +774,7 @@ def lectures(session: Session, course_id: int, year_id: int) -> List[str]:
     ).all()
 
 
-def user_optional_courses(session: Session, user_id: int) -> List[UserOptionalCourse]:
+def user_optional_courses(session: Session, user_id: int) -> list[UserOptionalCourse]:
     """
     Query multiple :obj:`UserOptionalCourse`s of a given user.
 
@@ -782,7 +783,7 @@ def user_optional_courses(session: Session, user_id: int) -> List[UserOptionalCo
         user_id (:obj:`int`) The user id.
 
     Returns:
-        List[:obj:`UserOptionalCourse`]
+        list[:obj:`UserOptionalCourse`]
     """
     return session.scalars(
         select(UserOptionalCourse).filter(UserOptionalCourse.user_id == user_id)

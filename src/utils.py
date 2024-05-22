@@ -1,6 +1,6 @@
 from functools import wraps
 from gettext import GNUTranslations
-from typing import Generic, List, TypeVar
+from typing import Generic, TypeVar
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session as SessionType
@@ -116,7 +116,7 @@ def set_setting_value(
 
 
 def build_menu(
-    buttons: List[InlineKeyboardButton],
+    buttons: list[InlineKeyboardButton],
     n_cols: int,
     header_buttons: InlineKeyboardButton | list[InlineKeyboardButton] = None,
     footer_buttons: InlineKeyboardButton | list[InlineKeyboardButton] = None,
@@ -142,7 +142,7 @@ def build_menu(
 
 
 def build_media_group(
-    media: List,
+    media: list,
 ) -> list[list]:
     return [media[i : i + 10] for i in range(0, len(media), 10)]
 
@@ -178,8 +178,8 @@ T = TypeVar("T")
 
 
 class Pager(Generic[T]):
-    def __init__(self, i_list: List[T], offset: int, size: int):
-        self.items: List[T] = i_list[offset : offset + size]
+    def __init__(self, i_list: list[T], offset: int, size: int):
+        self.items: list[T] = i_list[offset : offset + size]
         self.has_next: bool = (offset + size) < len(i_list)
         self.next_offset = offset + size if self.has_next else None
 
@@ -187,8 +187,8 @@ class Pager(Generic[T]):
         self.previous_offset = offset - size if self.has_previous else None
 
 
-def paginate(item_list: List[T], offset: int, size: int) -> Pager:
-    items: List[T] = item_list[offset : offset + size]
+def paginate(item_list: list[T], offset: int, size: int) -> Pager:
+    items: list[T] = item_list[offset : offset + size]
 
     has_next: bool = (offset + size) < len(item_list)
     next_offset = offset + size if has_next else None

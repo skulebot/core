@@ -1,7 +1,5 @@
 """Contains callbacks and handlers for the NOTIFICATION_ conversaion"""
 
-from typing import List
-
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
@@ -45,7 +43,7 @@ async def material(
             update, context, session, file_id=material.file_id
         )
 
-    keyboard: List[List] = []
+    keyboard: list[list] = []
 
     if isinstance(material, RefFilesMixin):
         menu_files = session.scalars(

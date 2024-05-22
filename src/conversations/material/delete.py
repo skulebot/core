@@ -1,5 +1,4 @@
 import re
-from typing import List
 
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardMarkup, Update
@@ -43,7 +42,7 @@ async def handler(update: Update, context: CustomContext, session: Session):
 
     _ = context.gettext
 
-    menu_buttons: List
+    menu_buttons: list
     message = (
         messages.title(context.match, session, context=context)
         + "\n"
