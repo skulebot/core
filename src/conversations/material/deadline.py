@@ -1,5 +1,5 @@
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
 from babel.dates import format_date, format_datetime
@@ -109,6 +109,7 @@ async def receive_time(update: Update, context: CustomContext, session: Session)
     day = int(match.group("d"))
 
     d = datetime(year, month, day, hour, minute, tzinfo=ZoneInfo("Africa/Khartoum"))
+    d = d.astimezone(timezone.utc)
     material.deadline = d
 
     message = _("Success! Deadline set {}").format(
