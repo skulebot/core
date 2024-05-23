@@ -16,7 +16,6 @@ from src.models import (
     Enrollment,
     File,
     HasNumber,
-    Lecture,
     Material,
     MaterialType,
     Review,
@@ -152,17 +151,12 @@ def material_type_text(match: re.Match, context: CustomContext):
 
 
 def material_message_text(
-    match: Optional[re.Match] = None,
-    session: Session = None,
-    material: Material = None,
-    context: CustomContext = None,
+    url: str,
+    context: CustomContext,
+    material: Material,
 ):
+    language_code = context.language_code
     _ = context.gettext
-
-    url = match.group()
-    if match and material is None:
-        material_id: str = match.group("material_id")
-        material = session.get(Material, material_id)
 
     is_published = ""
     if not user_mode(url):
@@ -193,20 +187,15 @@ def material_message_text(
         text = f"{material_type} {material.number}"
         message = text
     elif isinstance(material, SingleFile):
-        file = session.get(File, material.file_id)
-        return file_text(match, file, context) + " " + is_published
+        file = material.file
+        return file_text(file, context) + " " + is_published
     elif isinstance(material, Review):
-        text = material.get_name(context.language_code) + (
+        text = material.get_name(language_code) + (
             " " + str(d.year) if (d := material.date) else ""
         )
         message = text
 
     message += " " + is_published
-
-    if user_mode(url) and isinstance(material, Lecture):
-        message = "│ " + _("corner-symbol") + "── " + message
-    else:
-        message = "│   " + _("corner-symbol") + "── " + message
     return message
 
 
@@ -233,7 +222,7 @@ def material_title_text(
     return None
 
 
-def file_text(match: re.Match, file: File, context: CustomContext):
+def file_text(file: File, context: CustomContext):
     _ = context.gettext
     return (
         file.name

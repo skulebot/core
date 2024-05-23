@@ -90,9 +90,10 @@ async def handler(update: Update, context: CustomContext, session: Session, back
             + "\n"
             + messages.material_type_text(context.match, context=context)
             + ("\n" if isinstance(material, SingleFile) else "")
-            + messages.material_message_text(
-                context.match, session, material=material, context=context
-            )
+            + "│   "
+            + _("corner-symbol")
+            + "── "
+            + messages.material_message_text(url, context, material)
             + "\n\n"
             + _("Publishing Options").format(material_title)
         )
@@ -220,6 +221,7 @@ async def send_notification(context: CustomContext) -> None:
     with DBSession.begin() as session:
         session.add_all([material, user])
         with contextlib.suppress(Forbidden):
+            url = f"{constants.NOTIFICATION_}/{material.type}"
             message = (
                 translation.gettext("t-symbol")
                 + "─ 🔔 "
@@ -228,32 +230,29 @@ async def send_notification(context: CustomContext) -> None:
                 + translation.gettext("corner-symbol")
                 + "── "
                 + (
-                    messages.material_title_text(
-                        context.match, material, user.language_code
+                    messages.material_message_text(
+                        url,
+                        CustomContext(
+                            context.application,
+                            user_id=user.telegram_id,
+                            chat_id=user.chat_id,
+                        ),
+                        material,
                     )
                     if not isinstance(material, SingleFile)
                     else translation.gettext(material.type)
                 )
             )
 
-            keyboard = [
-                [
-                    buttons.show_more(
-                        f"{constants.NOTIFICATION_}/{material.type}/{material.id}"
-                    )
-                ]
-            ]
+            keyboard = [[buttons.show_more(f"{url}/{material.id}")]]
             if isinstance(material, (Review, SingleFile)):
-                keyboard = [
-                    [
-                        buttons.material(
-                            f"{constants.NOTIFICATION_}/{material.type}", material
-                        )
-                    ]
-                ]
+                keyboard = [[buttons.material(url, material)]]
             reply_markup = InlineKeyboardMarkup(keyboard)
             await context.bot.send_message(
-                user.chat_id, text=message, reply_markup=reply_markup
+                user.chat_id,
+                text=message,
+                reply_markup=reply_markup,
+                parse_mode=ParseMode.HTML,
             )
 
     if is_last:

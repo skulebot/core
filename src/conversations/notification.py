@@ -65,7 +65,7 @@ async def material(
         + "\n│ "
         + _("corner-symbol")
         + "── "
-        + messages.material_title_text(context.match, material, context.language_code)
+        + messages.material_message_text(url, context, material)
     )
 
     await query.edit_message_text(
@@ -89,6 +89,7 @@ async def collapse_material(
     query = update.callback_query
     await query.answer()
 
+    url = context.match.group()
     material_id = context.match.group("material_id")
     material = session.get(Material, material_id)
     _ = context.gettext
@@ -100,14 +101,16 @@ async def collapse_material(
         + "\n│ "
         + _("corner-symbol")
         + "── "
-        + messages.material_title_text(context.match, material, context.language_code)
+        + messages.material_message_text(url, context, material)
     )
     keyboard = [
         [context.buttons.show_more(f"{URLPREFIX}/{material.type}/{material.id}")]
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await query.edit_message_text(text=message, reply_markup=reply_markup)
+    await query.edit_message_text(
+        text=message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
+    )
 
 
 # ------------------------- ConversationHander -----------------------------

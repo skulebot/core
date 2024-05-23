@@ -288,6 +288,8 @@ async def material(
     keyboard += [[context.buttons.back(url, pattern=back_pattern)]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
+    is_publish_menu = not user_mode(url)
+    spaces = " " if not is_publish_menu and isinstance(material, Lecture) else "   "
     message = (
         messages.title(context.match, session, context=context)
         + "\n"
@@ -297,9 +299,11 @@ async def material(
         + "\n"
         + messages.material_type_text(context.match, context=context)
         + ("\n" if isinstance(material, SingleFile) else "")
-        + messages.material_message_text(
-            context.match, session, material=material, context=context
-        )
+        + "│"
+        + spaces
+        + _("corner-symbol")
+        + "── "
+        + messages.material_message_text(url, context, material)
     )
 
     await query.edit_message_text(

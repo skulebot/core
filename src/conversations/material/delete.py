@@ -52,9 +52,10 @@ async def handler(update: Update, context: CustomContext, session: Session):
         + "\n"
         + messages.material_type_text(context.match, context=context)
         + ("\n" if isinstance(material, SingleFile) else "")
-        + messages.material_message_text(
-            context.match, session, material=material, context=context
-        )
+        + "│   "
+        + _("corner-symbol")
+        + "── "
+        + messages.material_message_text(url, context, material)
         + "\n\n"
     )
     if has_confirmed is None:

@@ -72,7 +72,13 @@ def roles(roles: RoleName):
 
 
 def user_mode(url: str):
-    return url.startswith((constants.COURSES_, constants.ENROLLMENT_))
+    return url.startswith(
+        (
+            constants.COURSES_,
+            constants.ENROLLMENT_,
+            constants.NOTIFICATION_,
+        )
+    )
 
 
 def get_user_roles(user_id: int, session: SessionType):

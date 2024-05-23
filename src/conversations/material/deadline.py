@@ -37,7 +37,7 @@ async def edit(update: Update, context: CustomContext, session: Session):
         if (m := material.deadline)
         else None
     )
-    path = re.search(
+    url = re.search(
         rf".*/{constants.EDIT}/{constants.DEADLINE}", context.match.group()
     ).group()
 
@@ -54,7 +54,7 @@ async def edit(update: Update, context: CustomContext, session: Session):
         return f"{constants.EDIT} {constants.DEADLINE}"
     keyboard = picker.keyboard
     keyboard += [
-        [context.buttons.back(path, rf"/{constants.EDIT}/{constants.DEADLINE}.*$")]
+        [context.buttons.back(url, rf"/{constants.EDIT}/{constants.DEADLINE}.*$")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     message = (
@@ -65,9 +65,10 @@ async def edit(update: Update, context: CustomContext, session: Session):
         + course.get_name(context.language_code)
         + "\n"
         + messages.material_type_text(context.match, context=context)
-        + messages.material_message_text(
-            context.match, session, material=material, context=context
-        )
+        + "│   "
+        + _("corner-symbol")
+        + "── "
+        + messages.material_message_text(url, context, material)
         + "\n\n"
         + _("Select {}").format(_("Date"))
         + " "

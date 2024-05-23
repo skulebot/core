@@ -474,9 +474,9 @@ msgstr ""
 "[publish request]\n"
 "{}"
 
-#: src/messages.py:180 src/messages.py:235
+#: src/messages.py:188 src/messages.py:243
 msgid "No value"
-msgstr "No value"
+msgstr "no value"
 
 #: src/buttons.py:903
 msgid "Nope"
@@ -538,7 +538,7 @@ msgstr "(not published)"
 
 #: src/messages.py:170
 msgid "Published true"
-msgstr "(publishded)"
+msgstr "(published)"
 
 #: src/conversations/material/publish.py:97
 msgid "Publishing Options"
@@ -621,11 +621,11 @@ msgstr "September"
 
 #: src/buttons.py:879
 msgid "Show Less"
-msgstr "Show Less"
+msgstr "Less"
 
 #: src/buttons.py:872
 msgid "Show More"
-msgstr "Show More"
+msgstr "More"
 
 #: src/buttons.py:754 src/buttons.py:790 src/buttons.py:888
 #: src/conversations/material/add.py:189
@@ -852,7 +852,7 @@ msgstr "due by"
 
 #: src/conversations/material/deadline.py:70
 msgid "in Khartoum timezone"
-msgstr "in Khartoup timezone"
+msgstr "in Khartoum timezone"
 
 #: src/models/material.py:31
 msgid "lab"
