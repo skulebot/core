@@ -135,11 +135,17 @@ async def collapse_material(
         )
         parts.append(part)
 
+    remaining = (
+        _("time remaining {} {}").format(*parts)
+        if len(parts) > 1
+        else _("time remaining {}").format(*parts)
+    )
+
     message = (
         "⏰ "
         + _("Reminder")
         + "\n\n"
-        + _("{} of {} is due in {} {}").format(assignment_title, course_name, *parts)
+        + _("{} of {} is due in {}").format(assignment_title, course_name, remaining)
     )
     keyboard = [
         [context.buttons.show_more(f"{URLPREFIX}/{assignment.type}/{assignment.id}")]

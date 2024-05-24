@@ -116,35 +116,22 @@ async def send_reminder(context: CustomContext) -> None:
     seconds = delta.total_seconds()
     days = seconds // (24 * 60 * 60)
     hours = (seconds // (60 * 60)) % 24
-    minutes = (seconds // (60)) % 60
-    parts = []
-    if days:
-        part = format_timedelta(
+    parts = [
+        format_timedelta(
             datetime.timedelta(days=days),
             granularity="days",
             format="long",
             threshold=1,
             locale=user.language_code,
-        )
-        parts.append(part)
-    if hours:
-        part = format_timedelta(
+        ),
+        format_timedelta(
             datetime.timedelta(hours=hours),
             granularity="hours",
             format="long",
             threshold=1,
             locale=user.language_code,
-        )
-        parts.append(part)
-    if minutes and not days:
-        part = format_timedelta(
-            datetime.timedelta(minutes=minutes),
-            granularity="minutes",
-            format="long",
-            threshold=1,
-            locale=user.language_code,
-        )
-        parts.append(part)
+        ),
+    ]
 
     buttons = ar_buttons if user.language_code == constants.AR else en_buttons
 
@@ -152,14 +139,15 @@ async def send_reminder(context: CustomContext) -> None:
         session.add_all([assignment, user])
         course_name = assignment.course.get_name(user.language_code)
         assignment_title = gettext(assignment.type) + f" {assignment.number}"
+        remaining = gettext("time remaining {} {}").format(*parts)
 
         with contextlib.suppress(Forbidden):
             message = (
                 "⏰ "
                 + gettext("Reminder")
                 + "\n\n"
-                + gettext("{} of {} is due in {} {}").format(
-                    assignment_title, course_name, *parts
+                + gettext("{} of {} is due in {}").format(
+                    assignment_title, course_name, remaining
                 )
             )
 

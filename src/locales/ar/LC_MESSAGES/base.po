@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-23 15:11+0300\n"
+"POT-Creation-Date: 2024-05-24 14:26+0300\n"
 "PO-Revision-Date: 2024-05-07 16:04+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ar\n"
@@ -265,7 +265,7 @@ msgstr ""
 "حسناً، قمت باختيار <b>{}</b>، الآن ادخل الوقت بنظام ال 24 ساعة بتوقيت "
 "الخرطوم <pre>[h]h:[m]m</pre>"
 
-#: src/conversations/reminder.py:99
+#: src/conversations/reminder.py:100
 msgid "Deadline passed"
 msgstr "مرّ زمن التسليم"
 
@@ -323,7 +323,7 @@ msgstr "بدون تنبيهات"
 msgid "Done sending notifications"
 msgstr "تم ارسال التنبيهات!"
 
-#: src/jobs.py:180
+#: src/jobs.py:168
 msgid "Done sending reminders"
 msgstr "تم ارسال تنبيهات التساليم القريبة!"
 
@@ -550,8 +550,8 @@ msgstr "هل ترغب في ارسال تنبيهات؟"
 msgid "Reject"
 msgstr "رفض"
 
-#: src/conversations/reminder.py:60 src/conversations/reminder.py:140
-#: src/jobs.py:159
+#: src/conversations/reminder.py:60 src/conversations/reminder.py:147
+#: src/jobs.py:147
 msgid "Reminder"
 msgstr "تذكير"
 
@@ -946,6 +946,14 @@ msgstr "الشيتات"
 msgid "t-symbol"
 msgstr "┤"
 
+#: src/conversations/reminder.py:142
+msgid "time remaining {}"
+msgstr "{}"
+
+#: src/conversations/reminder.py:140 src/jobs.py:142
+msgid "time remaining {} {}"
+msgstr "{} و{}"
+
 #: src/models/material.py:40
 msgid "tool"
 msgstr "أداة"
@@ -962,7 +970,7 @@ msgstr "تمرين"
 msgid "tutorials"
 msgstr "التمارين"
 
-#: src/conversations/reminder.py:142 src/jobs.py:161
-msgid "{} of {} is due in {} {}"
-msgstr "{} من مادة {} بقي عليه {} و{}"
+#: src/conversations/reminder.py:149 src/jobs.py:149
+msgid "{} of {} is due in {}"
+msgstr "{} من مادة {} بقي عليه {}"
 

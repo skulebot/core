@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-23 15:11+0300\n"
+"POT-Creation-Date: 2024-05-24 14:26+0300\n"
 "PO-Revision-Date: 2024-05-07 12:56+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -266,7 +266,7 @@ msgstr ""
 "Alright, you selected <b>{}</b>, now type in time (24 hour format) in "
 "Khartoum timezone <pre>[h]h:[m]m</pre>"
 
-#: src/conversations/reminder.py:99
+#: src/conversations/reminder.py:100
 msgid "Deadline passed"
 msgstr "Deadline passed"
 
@@ -324,7 +324,7 @@ msgstr "Don't Notify"
 msgid "Done sending notifications"
 msgstr "Done sending notifications!"
 
-#: src/jobs.py:180
+#: src/jobs.py:168
 msgid "Done sending reminders"
 msgstr "Done sending assignment reminders!"
 
@@ -556,8 +556,8 @@ msgstr "Would you to send notifications?"
 msgid "Reject"
 msgstr "Reject"
 
-#: src/conversations/reminder.py:60 src/conversations/reminder.py:140
-#: src/jobs.py:159
+#: src/conversations/reminder.py:60 src/conversations/reminder.py:147
+#: src/jobs.py:147
 msgid "Reminder"
 msgstr "Reminder"
 
@@ -957,6 +957,14 @@ msgstr "Sheets"
 msgid "t-symbol"
 msgstr "├"
 
+#: src/conversations/reminder.py:142
+msgid "time remaining {}"
+msgstr "{}"
+
+#: src/conversations/reminder.py:140 src/jobs.py:142
+msgid "time remaining {} {}"
+msgstr "{} {}"
+
 #: src/models/material.py:40
 msgid "tool"
 msgstr "Tool"
@@ -973,7 +981,7 @@ msgstr "Tutorial"
 msgid "tutorials"
 msgstr "Tutorials"
 
-#: src/conversations/reminder.py:142 src/jobs.py:161
-msgid "{} of {} is due in {} {}"
-msgstr "{} of {} is due in {}, {}"
+#: src/conversations/reminder.py:149 src/jobs.py:149
+msgid "{} of {} is due in {}"
+msgstr "{} of {} is due in {}"
 
