@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-24 14:26+0300\n"
+"POT-Creation-Date: 2024-05-25 01:22+0300\n"
 "PO-Revision-Date: 2024-05-07 12:56+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -266,7 +266,7 @@ msgstr ""
 "Alright, you selected <b>{}</b>, now type in time (24 hour format) in "
 "Khartoum timezone <pre>[h]h:[m]m</pre>"
 
-#: src/conversations/reminder.py:100
+#: src/conversations/reminder.py:99
 msgid "Deadline passed"
 msgstr "Deadline passed"
 
@@ -324,9 +324,13 @@ msgstr "Don't Notify"
 msgid "Done sending notifications"
 msgstr "Done sending notifications!"
 
-#: src/jobs.py:168
+#: src/jobs.py:172
 msgid "Done sending reminders"
 msgstr "Done sending assignment reminders!"
+
+#: src/jobs.py:103
+msgid "Done! No reminders to send"
+msgstr "Done! No reminders to send."
 
 #: src/buttons.py:714
 msgid "Edit {}"
@@ -556,8 +560,8 @@ msgstr "Would you to send notifications?"
 msgid "Reject"
 msgstr "Reject"
 
-#: src/conversations/reminder.py:60 src/conversations/reminder.py:147
-#: src/jobs.py:147
+#: src/conversations/reminder.py:60 src/conversations/reminder.py:146
+#: src/jobs.py:151
 msgid "Reminder"
 msgstr "Reminder"
 
@@ -670,6 +674,10 @@ msgstr "Success!"
 #: src/conversations/setting.py:162 src/conversations/setting.py:164
 msgid "Success! All notifications are Off"
 msgstr "Success! All notifications are Off"
+
+#: src/conversations/material/deadline.py:123
+msgid "Success! Deadline reminder set"
+msgstr "Reminder set to run before ∼1.5 days."
 
 #: src/conversations/material/deadline.py:119
 msgid "Success! Deadline set {}"
@@ -957,11 +965,11 @@ msgstr "Sheets"
 msgid "t-symbol"
 msgstr "├"
 
-#: src/conversations/reminder.py:142
+#: src/conversations/reminder.py:141
 msgid "time remaining {}"
 msgstr "{}"
 
-#: src/conversations/reminder.py:140 src/jobs.py:142
+#: src/conversations/reminder.py:139 src/jobs.py:146
 msgid "time remaining {} {}"
 msgstr "{} {}"
 
@@ -981,7 +989,7 @@ msgstr "Tutorial"
 msgid "tutorials"
 msgstr "Tutorials"
 
-#: src/conversations/reminder.py:149 src/jobs.py:149
+#: src/conversations/reminder.py:148 src/jobs.py:153
 msgid "{} of {} is due in {}"
 msgstr "{} of {} is due in {}"
 

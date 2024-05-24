@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-24 14:26+0300\n"
+"POT-Creation-Date: 2024-05-25 01:22+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -252,7 +252,7 @@ msgstr ""
 msgid "Deadline date selected {}"
 msgstr ""
 
-#: src/conversations/reminder.py:100
+#: src/conversations/reminder.py:99
 msgid "Deadline passed"
 msgstr ""
 
@@ -310,8 +310,12 @@ msgstr ""
 msgid "Done sending notifications"
 msgstr ""
 
-#: src/jobs.py:168
+#: src/jobs.py:172
 msgid "Done sending reminders"
+msgstr ""
+
+#: src/jobs.py:103
+msgid "Done! No reminders to send"
 msgstr ""
 
 #: src/buttons.py:714
@@ -523,8 +527,8 @@ msgstr ""
 msgid "Reject"
 msgstr ""
 
-#: src/conversations/reminder.py:60 src/conversations/reminder.py:147
-#: src/jobs.py:147
+#: src/conversations/reminder.py:60 src/conversations/reminder.py:146
+#: src/jobs.py:151
 msgid "Reminder"
 msgstr ""
 
@@ -634,6 +638,10 @@ msgstr ""
 
 #: src/conversations/setting.py:162 src/conversations/setting.py:164
 msgid "Success! All notifications are Off"
+msgstr ""
+
+#: src/conversations/material/deadline.py:123
+msgid "Success! Deadline reminder set"
 msgstr ""
 
 #: src/conversations/material/deadline.py:119
@@ -913,11 +921,11 @@ msgstr ""
 msgid "t-symbol"
 msgstr ""
 
-#: src/conversations/reminder.py:142
+#: src/conversations/reminder.py:141
 msgid "time remaining {}"
 msgstr ""
 
-#: src/conversations/reminder.py:140 src/jobs.py:142
+#: src/conversations/reminder.py:139 src/jobs.py:146
 msgid "time remaining {} {}"
 msgstr ""
 
@@ -937,7 +945,7 @@ msgstr ""
 msgid "tutorials"
 msgstr ""
 
-#: src/conversations/reminder.py:149 src/jobs.py:149
+#: src/conversations/reminder.py:148 src/jobs.py:153
 msgid "{} of {} is due in {}"
 msgstr ""
 

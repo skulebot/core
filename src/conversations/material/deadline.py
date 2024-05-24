@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 from babel.dates import format_date, format_datetime
@@ -119,6 +119,14 @@ async def receive_time(update: Update, context: CustomContext, session: Session)
     message = _("Success! Deadline set {}").format(
         format_datetime(d, "E d MMM hh:mm a ZZZZ", locale=context.language_code)
     )
+    now = datetime.now(ZoneInfo("Africa/Khartoum"))
+    if now.hour < 6:
+        next_run = now.replace(hour=6, minute=0, second=0, microsecond=0)
+    else:
+        next_run = now.replace(hour=18, minute=0, second=0, microsecond=0)
+    if d >= next_run + timedelta(hours=36):
+        note = _("Success! Deadline reminder set")
+        message += "\n" + note
     await update.message.reply_text(
         message, reply_markup=reply_markup, parse_mode=ParseMode.HTML
     )

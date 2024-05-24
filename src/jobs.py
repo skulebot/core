@@ -98,6 +98,10 @@ async def deadline_reminder(context: CustomContext):
                     user_id=job.user_id,
                 )
                 when += 2
+        if len(assignments) == 0:
+            await context.bot.send_message(
+                job.chat_id, text=context.gettext("Done! No reminders to send")
+            )
 
 
 async def send_reminder(context: CustomContext) -> None:

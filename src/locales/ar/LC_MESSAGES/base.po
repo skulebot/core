@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-24 14:26+0300\n"
+"POT-Creation-Date: 2024-05-25 01:22+0300\n"
 "PO-Revision-Date: 2024-05-07 16:04+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ar\n"
@@ -265,7 +265,7 @@ msgstr ""
 "حسناً، قمت باختيار <b>{}</b>، الآن ادخل الوقت بنظام ال 24 ساعة بتوقيت "
 "الخرطوم <pre>[h]h:[m]m</pre>"
 
-#: src/conversations/reminder.py:100
+#: src/conversations/reminder.py:99
 msgid "Deadline passed"
 msgstr "مرّ زمن التسليم"
 
@@ -323,9 +323,13 @@ msgstr "بدون تنبيهات"
 msgid "Done sending notifications"
 msgstr "تم ارسال التنبيهات!"
 
-#: src/jobs.py:168
+#: src/jobs.py:172
 msgid "Done sending reminders"
 msgstr "تم ارسال تنبيهات التساليم القريبة!"
+
+#: src/jobs.py:103
+msgid "Done! No reminders to send"
+msgstr "تم! لا يوجد تسليم قريب."
 
 #: src/buttons.py:714
 msgid "Edit {}"
@@ -550,8 +554,8 @@ msgstr "هل ترغب في ارسال تنبيهات؟"
 msgid "Reject"
 msgstr "رفض"
 
-#: src/conversations/reminder.py:60 src/conversations/reminder.py:147
-#: src/jobs.py:147
+#: src/conversations/reminder.py:60 src/conversations/reminder.py:146
+#: src/jobs.py:151
 msgid "Reminder"
 msgstr "تذكير"
 
@@ -662,6 +666,10 @@ msgstr "نجاح!"
 #: src/conversations/setting.py:162 src/conversations/setting.py:164
 msgid "Success! All notifications are Off"
 msgstr "تم! كل التنبيهات ملغية"
+
+#: src/conversations/material/deadline.py:123
+msgid "Success! Deadline reminder set"
+msgstr "سيتم ارسال تذكير قبل يوم ونصف على الاقل."
 
 #: src/conversations/material/deadline.py:119
 msgid "Success! Deadline set {}"
@@ -946,11 +954,11 @@ msgstr "الشيتات"
 msgid "t-symbol"
 msgstr "┤"
 
-#: src/conversations/reminder.py:142
+#: src/conversations/reminder.py:141
 msgid "time remaining {}"
 msgstr "{}"
 
-#: src/conversations/reminder.py:140 src/jobs.py:142
+#: src/conversations/reminder.py:139 src/jobs.py:146
 msgid "time remaining {} {}"
 msgstr "{} و{}"
 
@@ -970,7 +978,7 @@ msgstr "تمرين"
 msgid "tutorials"
 msgstr "التمارين"
 
-#: src/conversations/reminder.py:149 src/jobs.py:149
+#: src/conversations/reminder.py:148 src/jobs.py:153
 msgid "{} of {} is due in {}"
 msgstr "{} من مادة {} بقي عليه {}"
 
