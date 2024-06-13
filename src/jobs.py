@@ -33,7 +33,9 @@ def remove_job_if_exists(name: str, context: CustomContext) -> bool:
 async def deadline_reminder(context: CustomContext):
     job = context.job
     await context.bot.send_message(
-        job.chat_id, text=context.gettext("Started assignment deadline reminders")
+        job.chat_id,
+        text=context.gettext("Started assignment deadline reminders"),
+        disable_notification=True,
     )
     current_time = datetime.datetime.now(datetime.UTC)
     with Session.begin() as session:
@@ -100,7 +102,9 @@ async def deadline_reminder(context: CustomContext):
                 when += 2
         if len(assignments) == 0:
             await context.bot.send_message(
-                job.chat_id, text=context.gettext("Done! No reminders to send")
+                job.chat_id,
+                text=context.gettext("Done! No reminders to send"),
+                disable_notification=True,
             )
 
 
@@ -169,4 +173,6 @@ async def send_reminder(context: CustomContext) -> None:
 
     _ = context.gettext
     if is_last:
-        await context.bot.send_message(job.chat_id, text=_("Done sending reminders"))
+        await context.bot.send_message(
+            job.chat_id, text=_("Done sending reminders"), disable_notification=True
+        )
