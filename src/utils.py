@@ -1,3 +1,4 @@
+import math
 from functools import wraps
 from gettext import GNUTranslations
 from typing import Generic, TypeVar
@@ -192,6 +193,9 @@ class Pager(Generic[T]):
 
         self.has_previous = offset > 0
         self.previous_offset = offset - size if self.has_previous else None
+
+        self.current_page = (offset // size) + 1
+        self.number_of_pages = math.ceil(len(i_list) / size)
 
 
 def paginate(item_list: list[T], offset: int, size: int) -> Pager:

@@ -22,6 +22,7 @@ from .requestmanagement import requestmanagement_
 from .semester import semester_
 from .setting import settings_
 from .updatematerial import updatematerials_
+from .user import user_
 
 handlers = [
     usercourses_,
@@ -38,4 +39,5 @@ handlers = [
     coursemanagement_,
     requestmanagement_,
     contentmanagement_,
+    user_,
 ]

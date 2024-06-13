@@ -3,7 +3,7 @@ import random
 import re
 from collections.abc import Sequence
 from datetime import date, datetime, timedelta
-from typing import Callable, NamedTuple, Optional, Union
+from typing import TYPE_CHECKING, Callable, NamedTuple, Optional, Union
 from zoneinfo import ZoneInfo
 
 from babel.dates import format_date
@@ -30,9 +30,14 @@ from src.models import (
     SettingKey,
     SingleFile,
     Status,
+    User,
 )
 from src.models.material import REVIEW_TYPES, get_review_type_name
 from src.utils import build_menu, user_locale
+
+if TYPE_CHECKING:
+    from src.customcontext import CustomContext
+
 
 calendar.setfirstweekday(6)
 
@@ -75,6 +80,37 @@ class Buttons:
         return InlineKeyboardButton(
             text="[" + _("Optional Courses") + "]", callback_data=url
         )
+
+    def search(self, url: str) -> InlineKeyboardButton:
+        _ = self._gettext
+        return InlineKeyboardButton(text=_("Search"), callback_data=url)
+
+    async def user_list(
+        self,
+        users: Sequence[User],
+        url: str,
+        context: "CustomContext",
+        end: Optional[str] = None,
+    ):
+        """Builds a list of :class:`InlineKeyboardButton` for model :class:`User`
+
+        Args:
+            user (Sequence[:obj:`User`]): A list of :obj:`User` objects
+            url (:obj:`str`): Callback data to be passed to
+                `InlineKeyboardButton.callback_data`.
+        """
+        _ = self._gettext
+        user_data = await context.application.persistence.get_user_data()
+        return [
+            InlineKeyboardButton(
+                (
+                    user_data.get(user.telegram_id, {}).get("full_name")
+                    or "[" + _("User") + "]"
+                ),
+                callback_data=f"{url}/{user.id}{end or ''}",
+            )
+            for user in users
+        ]
 
     def new_access_request(
         self, enrollment: Enrollment, url: str
@@ -676,6 +712,21 @@ class Buttons:
         _ = self._gettext
         return InlineKeyboardButton(
             _("prev-page-symbol"),
+            callback_data=callback_data,
+        )
+
+    def current_page(self, current_page: int, number_of_pages: int, callback_data: str):
+        """Create an :class:`InlineKeyboardButton`
+
+        Args:
+            callback_data (:obj:`str`): the :paramref:`callback_data` of the button
+
+        Returns:
+            :class:`InlineKeyboardButton`
+        """
+        _ = self._gettext
+        return InlineKeyboardButton(
+            _("{} of {}").format(current_page, number_of_pages),
             callback_data=callback_data,
         )
 
