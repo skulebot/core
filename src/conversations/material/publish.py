@@ -173,7 +173,7 @@ async def register_jobs(update: Update, context: CustomContext, session: Session
         session.expunge_all()
         is_last = i == len(users) - 1
         is_first = i == 0
-        when = i * 2
+        when = i * 2.5
         context.job_queue.run_once(
             send_notification,
             when=when,
