@@ -99,7 +99,7 @@ async def deadline_reminder(context: CustomContext):
                     chat_id=job.chat_id,
                     user_id=job.user_id,
                 )
-                when += 2
+                when += 2.5
         if len(assignments) == 0:
             await context.bot.send_message(
                 job.chat_id,
