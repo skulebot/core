@@ -458,7 +458,7 @@ states.update(
     {
         constants.LANGUAGE: states[constants.ONE]
         + [
-            MessageHandler(filters.TEXT, receive_message),
+            MessageHandler(filters.ALL, receive_message),
         ]
     }
 )
