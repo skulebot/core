@@ -127,9 +127,10 @@ async def deadlines(update: Update, context: CustomContext, session: Session):
     collapsed = bool(int(c)) if (c := context.match.group("collapsed")) else None
     collapsed = True if collapsed is None and len(assignments) > 2 else collapsed
 
+    zone = ZoneInfo("Africa/Khartoum")
     picker = context.buttons.datepicker(
         context.match,
-        selected=[a.deadline.date() for a in assignments] or None,
+        selected=[a.deadline.astimezone(zone).date() for a in assignments] or None,
         emoji="📌",
         min=assignments[0].deadline.date() if assignments else datetime.now(UTC).date(),
         max=(
