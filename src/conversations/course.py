@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 from zoneinfo import ZoneInfo
 
 from babel.dates import format_datetime
-from sqlalchemy import and_, select
+from sqlalchemy import and_, select, text
 from sqlalchemy.orm import Session
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
@@ -107,6 +107,8 @@ async def deadlines(update: Update, context: CustomContext, session: Session):
     ]
     _ = context.gettext
 
+    zone = ZoneInfo("Africa/Khartoum")
+    session.execute(text("SET TIME ZONE 'Africa/Khartoum'"))
     assignments = session.scalars(
         select(Assignment)
         .join(
@@ -119,7 +121,7 @@ async def deadlines(update: Update, context: CustomContext, session: Session):
         .join(Semester)
         .filter(
             Assignment.published,
-            Assignment.deadline >= datetime.now(UTC),
+            Assignment.deadline >= datetime.now(zone),
             Semester.number.in_(semester_numbers),
         )
         .order_by(Assignment.deadline.asc())
@@ -131,9 +133,13 @@ async def deadlines(update: Update, context: CustomContext, session: Session):
         context.match,
         selected=[a.deadline.date() for a in assignments] or None,
         emoji="📌",
-        min=assignments[0].deadline.date() if assignments else datetime.now(UTC).date(),
+        min=(
+            assignments[0].deadline.date() if assignments else datetime.now(zone).date()
+        ),
         max=(
-            assignments[-1].deadline.date() if assignments else datetime.now(UTC).date()
+            assignments[-1].deadline.date()
+            if assignments
+            else datetime.now(zone).date()
         ),
     )
     back_url = re.sub(f"/{constants.DEADLINE}.*", f"/{constants.COURSES}", url)
@@ -211,6 +217,7 @@ async def assignments(update: Update, context: CustomContext, session: Session):
     ]
     _ = context.gettext
 
+    session.execute(text("SET TIME ZONE 'Africa/Khartoum'"))
     assignments = session.scalars(
         select(Assignment)
         .join(
