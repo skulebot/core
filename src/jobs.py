@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 
 from babel.dates import format_timedelta
 from sqlalchemy import and_, select
+from sqlalchemy.orm import aliased
 from telegram import InlineKeyboardMarkup
 from telegram.error import Forbidden
 
@@ -16,6 +17,7 @@ from src.models.course import Course
 from src.models.enrollment import Enrollment
 from src.models.program_semester import ProgramSemester
 from src.models.program_semester_course import ProgramSemesterCourse
+from src.models.semester import Semester
 from src.models.user import User
 from src.utils import user_locale
 
@@ -56,6 +58,8 @@ async def deadline_reminder(context: CustomContext):
         ).all()
         when = 2
         for i, assignment in enumerate(assignments):
+            sub_semester = aliased(Semester)
+            sub_program_semester = aliased(ProgramSemester)
             academic_year_id = assignment.academic_year_id
             users: list[User] = session.scalars(
                 select(User)
@@ -70,7 +74,26 @@ async def deadline_reminder(context: CustomContext):
                         == ProgramSemesterCourse.semester_id,
                     ),
                 )
-                .join(Enrollment, Enrollment.program_semester_id == ProgramSemester.id)
+                .join(Semester)
+                .join(
+                    Enrollment,
+                    Enrollment.program_semester_id.in_(
+                        select(sub_program_semester.id)
+                        .join(sub_semester)
+                        .where(
+                            sub_program_semester.program_id
+                            == ProgramSemester.program_id,
+                            sub_semester.number.in_(
+                                [
+                                    Semester.number,
+                                    Semester.number
+                                    + (1 if Semester.number % 2 == 1 else -1),
+                                ]
+                            ),
+                        )
+                        .subquery()
+                    ),
+                )
                 .join(User, Enrollment.user_id == User.id)
                 .where(
                     Assignment.id == assignment.id,
