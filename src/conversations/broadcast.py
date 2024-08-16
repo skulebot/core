@@ -1,11 +1,13 @@
 """Contains callbacks and handlers for the /broadcast conversaion"""
 
+import contextlib
 import re
 from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from telegram import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.error import Forbidden
 from telegram.ext import (
     CallbackQueryHandler,
     CommandHandler,
@@ -404,11 +406,12 @@ async def send_message(context: CustomContext) -> None:
         else:
             message_id = context.chat_data[DATA_KEY]["en_message_id"]
 
-    message = await context.bot.copy_message(
-        user.chat_id, from_chat_id=job.chat_id, message_id=message_id
-    )
-    if option == "pin":
-        await context.bot.pin_chat_message(user.chat_id, message.message_id)
+    with contextlib.suppress(Forbidden):
+        message = await context.bot.copy_message(
+            user.chat_id, from_chat_id=job.chat_id, message_id=message_id
+        )
+        if option == "pin":
+            await context.bot.pin_chat_message(user.chat_id, message.message_id)
 
     if is_last:
         await context.bot.send_message(
