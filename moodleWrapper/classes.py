@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import  Optional
+from typing import Optional
 
 
 @dataclass
@@ -20,10 +20,12 @@ class Category:
     timemodified: Optional[int] = None
     theme: Optional[str] = None
 
+
 @dataclass
 class CourseFormatOption:
     name: str
     value: str
+
 
 @dataclass
 class Course:
