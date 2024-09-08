@@ -1,13 +1,20 @@
-import os  # noqa: INP001
+import os
 from dataclasses import dataclass, fields
 from pathlib import Path
-from pprint import pprint
 from typing import Any, Literal, Optional, Union
 
 import requests
+from classes import (
+    Category,
+    Contact,
+    Course,
+    CourseFormatOption,
+    CustomField,
+    File,
+    Filter,
+    MoodleCourse,
+)
 from dotenv import load_dotenv
-
-from .classes import Category, Course
 
 
 @dataclass
@@ -143,23 +150,74 @@ class MoodleAPIClient:
 
         return response
 
-    def get_courses_by_field(self, field: str, value: Any) -> MoodleAPIResponse:
+    def _parse_courses_field(
+        self, courses_data: list[dict[str, Any]]
+    ) -> list[MoodleCourse]:
+        parsed_courses = []
+        for course_data in courses_data:
+            try:
+                # Handle nested structures
+                course_data["summaryfiles"] = [
+                    File(**f) for f in course_data.get("summaryfiles", [])
+                ]
+                course_data["overviewfiles"] = [
+                    File(**f) for f in course_data.get("overviewfiles", [])
+                ]
+                course_data["contacts"] = [
+                    Contact(**c) for c in course_data.get("contacts", [])
+                ]
+                course_data["customfields"] = [
+                    CustomField(**f) for f in course_data.get("customfields", [])
+                ]
+                course_data["filters"] = [
+                    Filter(**f) for f in course_data.get("filters", [])
+                ]
+                course_data["courseformatoptions"] = [
+                    CourseFormatOption(**o)
+                    for o in course_data.get("courseformatoptions", [])
+                ]
+
+                parsed_courses.append(MoodleCourse(**course_data))
+            except (KeyError, TypeError) as e:
+                print(e)
+                raise ValueError(
+                    f"Error parsing course data: {e!s}. Course data: {course_data}"
+                ) from None
+        return parsed_courses
+
+    def get_courses_by_field(
+        self,
+        field: Literal["id", "ids", "shortname", "idnumber", "category"],
+        value: Any = "",
+    ) -> MoodleAPIResponse:
         """
         Retrieve courses by a specific field.
 
-        :param field: The field to filter by
-            (e.g., 'category', 'ids', 'shortname', etc.)
-        :param value: The value to filter for.
+        :param field: The field to search. Can be left empty for all courses or:
+                      id: course id
+                      ids: comma separated course ids
+                      shortname: course short name
+                      idnumber: course id number
+                      category: category id the course belongs to
+        :param value: The value to search for in the specified field.
         :return: MoodleAPIResponse containing course data.
         """
         params = {"field": field, "value": value}
-        return self._request("core_course_get_courses_by_field", params)
+        response = self._request("core_course_get_courses_by_field", params)
+
+        if response.status_code == 200 and "courses" in response.data:
+            try:
+                response.data["courses"] = self._parse_courses_field(
+                    response.data["courses"]
+                )
+            except ValueError as e:
+                response.error = f"Error parsing course data: {e!s}"
+                response.data = None
+
+        return response
 
 
 client = MoodleAPIClient()
-response = client.get_categories()
+response = client.get_courses_by_field(field="category", value="8")
 print(f"Status Code: {response.status_code}")
-for c in response.data:
-    print(type(c))
-    pprint(f"Data: {c}")
-    print()
+print(f"Data: {response.data}")
