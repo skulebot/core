@@ -85,6 +85,7 @@ def register_handlers(application: Application):
     application.add_handlers(conversations.handlers, 2)
 
     # Error Handler
+    # Courtesy of @roolsbot
     application.add_error_handler(error_handler)
 
 
