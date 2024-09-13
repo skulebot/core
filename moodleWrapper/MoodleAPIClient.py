@@ -1,11 +1,10 @@
 from datetime import datetime
 import os
-import requests
-from dotenv import load_dotenv
 from dataclasses import dataclass, fields
 from typing import Optional, Dict, Any, List, Union, Literal
 import urllib.parse
 
+import requests
 from classes import (
     Assignment,
     AssignmentConfig,
@@ -29,6 +28,7 @@ from classes import (
     MoodleCourse,
     UpdateItem,
 )
+from dotenv import load_dotenv
 
 
 @dataclass
@@ -40,7 +40,8 @@ class MoodleAPIResponse:
 class MoodleAPIClient:
     def __init__(self, server_url: Optional[str] = None, token: Optional[str] = None):
         # Load environment variables if .env file exists
-        if os.path.exists(".env"):
+
+        if Path.exists(Path(".", ".env")):
             load_dotenv()
 
         self.server_url = server_url or os.getenv("MOODLE_SERVER_URL")
@@ -48,7 +49,8 @@ class MoodleAPIClient:
 
         if not self.server_url or not self.token:
             raise ValueError(
-                "Moodle server URL and token must be provided either in .env file or as constructor arguments"
+                "Moodle server URL and token must be provided either in .env file or as"
+                " constructor arguments"
             )
 
         self.session = requests.Session()
@@ -74,7 +76,7 @@ class MoodleAPIClient:
         return "&".join(encode_param(k, v) for k, v in params.items())
 
     def _request(
-        self, function: str, params: Optional[Dict[str, Any]] = None
+        self, function: str, params: Optional[dict[str, Any]] = None
     ) -> MoodleAPIResponse:
         url = f"{self.server_url}/webservice/rest/server.php"
         data = (
@@ -156,7 +158,7 @@ class MoodleAPIClient:
     def get_categories(
         self,
         id: Optional[int] = None,
-        ids: Optional[Union[str, List[int]]] = None,
+        ids: Optional[Union[str, list[int]]] = None,
         name: Optional[str] = None,
         parent: Optional[int] = None,
         idnumber: Optional[str] = None,
@@ -247,7 +249,7 @@ class MoodleAPIClient:
                     response.data["courses"]
                 )
             except ValueError as e:
-                response.error = f"Error parsing course data: {str(e)}"
+                response.error = f"Error parsing course data: {e!s}"
                 response.data = None
 
         return response

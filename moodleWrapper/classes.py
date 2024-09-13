@@ -108,13 +108,13 @@ class MoodleCourse:
     summaryformat: int
     showactivitydates: int
     showcompletionconditions: int
-    contacts: List[Contact] = field(default_factory=list)
-    enrollmentmethods: List[str] = field(default_factory=list)
-    customfields: List[CustomField] = field(default_factory=list)
-    filters: List[Filter] = field(default_factory=list)
-    courseformatoptions: List[CourseFormatOption] = field(default_factory=list)
-    summaryfiles: List[File] = field(default_factory=list)
-    overviewfiles: List[File] = field(default_factory=list)
+    contacts: list[Contact] = field(default_factory=list)
+    enrollmentmethods: list[str] = field(default_factory=list)
+    customfields: list[CustomField] = field(default_factory=list)
+    filters: list[Filter] = field(default_factory=list)
+    courseformatoptions: list[CourseFormatOption] = field(default_factory=list)
+    summaryfiles: list[File] = field(default_factory=list)
+    overviewfiles: list[File] = field(default_factory=list)
     idnumber: Optional[str] = None
     format: Optional[str] = None
     showgrades: Optional[int] = None
