@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -149,3 +149,201 @@ class Warning:
     itemid: Optional[int] = None
     warningcode: str
     message: str
+
+
+@dataclass
+class UpdateItem:
+    name: str
+    timeupdated: Optional[int] = None
+    itemids: Optional[List[int]] = None
+
+
+@dataclass
+class Instance:
+    contextlevel: str
+    id: int
+    updates: List[UpdateItem]
+
+
+@dataclass
+class CourseUpdatesResponse:
+    instances: List[Instance]
+    warnings: Optional[List[Warning]] = None
+
+
+@dataclass
+class AssignmentFile:
+    filename: str
+    filepath: str
+    filesize: int
+    fileurl: str
+    timemodified: int
+    mimetype: Optional[str] = None
+
+
+@dataclass
+class AssignmentConfig:
+    plugin: str
+    subtype: str
+    name: str
+    value: str
+
+
+@dataclass
+class Assignment:
+    id: int
+    cmid: int
+    course: int
+    name: str
+    nosubmissions: int
+    submissiondrafts: int
+    sendnotifications: int
+    sendlatenotifications: int
+    sendstudentnotifications: int
+    duedate: int
+    allowsubmissionsfromdate: int
+    grade: int
+    timemodified: int
+    completionsubmit: int
+    cutoffdate: int
+    gradingduedate: int
+    teamsubmission: int
+    requireallteammemberssubmit: int
+    teamsubmissiongroupingid: int
+    blindmarking: int
+    hidegrader: int
+    revealidentities: int
+    attemptreopenmethod: str
+    maxattempts: int
+    markinganonymous: int
+    markingworkflow: int
+    markingallocation: int
+    requiresubmissionstatement: int
+    preventsubmissionnotingroup: int
+    configs: List[AssignmentConfig]
+    intro: Optional[str] = None
+    introfiles: Optional[AssignmentFile] = None
+    introformat: Optional[int] = None
+    timelimit: Optional[int] = None
+    submissionattachments: Optional[int] = None
+    introattachments: Optional[List[AssignmentFile]] = None
+
+
+@dataclass
+class CourseAssignments:
+    id: int
+    fullname: str
+    shortname: str
+    timemodified: int
+    assignments: List[Assignment]
+
+
+@dataclass
+class AssignmentsResponse:
+    courses: List[CourseAssignments]
+    warnings: Optional[List[Dict[str, Any]]] = None
+
+
+@dataclass
+class ContentTag:
+    id: int
+    name: str
+    rawname: str
+    isstandard: int
+    tagcollid: int
+    taginstanceid: int
+    taginstancecontextid: int
+    itemid: int
+    ordering: int
+    flag: int
+    viewurl: Optional[str] = None
+
+
+@dataclass
+class ModuleContent:
+    type: str
+    filename: str
+    filepath: str
+    filesize: int
+    timemodified: int
+    timecreated: int
+    sortorder: int
+    userid: int
+    author: str
+    license: str
+    mimetype: Optional[str] = None
+    fileurl: Optional[str] = None
+    content: Optional[str] = None
+    isexternalfile: Optional[int] = None
+    repositorytype: Optional[str] = None
+    tags: Optional[List[ContentTag]] = None
+
+
+@dataclass
+class ModuleCompletionData:
+    state: int
+    timecompleted: int
+    overrideby: int
+    valueused: int
+    hascompletion: int
+    isautomatic: int
+    istrackeduser: int
+    uservisible: int
+    details: List[Dict[str, Any]]
+    isoverallcomplete: Optional[int] = None
+
+
+@dataclass
+class ModuleDate:
+    label: str
+    timestamp: int
+    relativeto: Optional[int] = None
+    dataid: Optional[str] = None
+
+
+@dataclass
+class CourseModule:
+    id: int
+    name: str
+    instance: Optional[int]
+    modname: str
+    modplural: str
+    modicon: str
+    indent: int
+    purpose: str
+    branded: int
+    visible: Optional[int]
+    visibleoncoursepage: Optional[int]
+    uservisible: Optional[int]
+    url: Optional[str] = None
+    onclick: Optional[str] = None
+    afterlink: Optional[str] = None
+    activitybadge: Optional[str] = None
+    contextid: Optional[int] = None
+    groupmode: Optional[int] = None
+    description: Optional[str] = None
+    availabilityinfo: Optional[str] = None
+    availability: Optional[str] = None
+    downloadcontent: Optional[int] = None
+    noviewlink: Optional[int] = None
+    customdata: Optional[str] = None
+    completion: Optional[int] = None
+    completiondata: Optional[ModuleCompletionData] = None
+    contents: Optional[List[ModuleContent]] = None
+    contentsinfo: Optional[Dict[str, Any]] = None
+    dates: Optional[List[ModuleDate]] = None
+
+
+@dataclass
+class CourseSection:
+    id: int
+    name: str
+
+    summary: str
+    summaryformat: int
+    section: Optional[int]
+    visible: Optional[int]
+    hiddenbynumsections: Optional[int]
+    uservisible: Optional[int]
+    modules: List[CourseModule]
+    availabilityinfo: Optional[str] = None
