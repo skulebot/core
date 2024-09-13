@@ -41,7 +41,7 @@ class MoodleAPIClient:
     def __init__(self, server_url: Optional[str] = None, token: Optional[str] = None):
         # Load environment variables if .env file exists
 
-        if Path.exists(Path(".", ".env")):
+        if os.path.exists(".env"):
             load_dotenv()
 
         self.server_url = server_url or os.getenv("MOODLE_SERVER_URL")
