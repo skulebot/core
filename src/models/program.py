@@ -16,6 +16,7 @@ class Program(Base):
     ar_name: Mapped[str] = mapped_column(String(50), nullable=False)
     duration: Mapped[int] = mapped_column(Integer, nullable=False)
     active: Mapped[int] = mapped_column(Boolean, nullable=False, default=True)
+    moodle_id: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
 
     program_semester_associations: Mapped[list["ProgramSemester"]] = relationship(
         init=False,

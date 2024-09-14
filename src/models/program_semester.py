@@ -17,7 +17,7 @@ class ProgramSemester(Base):
 
     program_id: Mapped[int] = mapped_column(ForeignKey("program.id"), default=None)
     semester_id: Mapped[int] = mapped_column(ForeignKey("semester.id"), default=None)
-    moodle_id: Mapped[int] = mapped_column(Integer, nullable=False, default=None)
+    moodle_id: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
     available: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     program: Mapped["Program"] = relationship(
