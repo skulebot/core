@@ -6,7 +6,9 @@ from pathlib import Path
 from typing import Any, Literal, Optional, Union
 
 import requests
-from classes import (
+from dotenv import load_dotenv
+
+from .classes import (
     Assignment,
     AssignmentConfig,
     AssignmentFile,
@@ -29,7 +31,6 @@ from classes import (
     MoodleCourse,
     UpdateItem,
 )
-from dotenv import load_dotenv
 
 
 @dataclass
@@ -87,7 +88,6 @@ class MoodleAPIClient:
         try:
             response = self.session.get(full_url)
             response.raise_for_status()
-            print(response.url)
             return MoodleAPIResponse(
                 status_code=response.status_code, data=response.json()
             )
@@ -127,7 +127,6 @@ class MoodleAPIClient:
 
                 parsed_courses.append(MoodleCourse(**course_data))
             except (KeyError, TypeError) as e:
-                print(e)
                 raise ValueError(
                     f"Error parsing course data: {e!s}. Course data: {course_data}"
                 ) from None
@@ -193,7 +192,6 @@ class MoodleAPIClient:
         # Parse the response into MoodleCategory objects
         try:
             if response.status_code == 200:
-                print(response.data)
                 response.data = [Category(**category) for category in response.data]
 
             return response
@@ -339,7 +337,6 @@ class MoodleAPIClient:
             params["capabilities"] = capabilities
 
         response = self._request("mod_assign_get_assignments", params)
-        print(response.data)
         try:
             if response.status_code == 200:
                 courses = []
@@ -380,7 +377,6 @@ class MoodleAPIClient:
                 response.data = assignments_response
             return response
         except Exception as e:
-            print(e)
             return MoodleAPIResponse(status_code=500, data={"error": str(e)})
 
     def get_course_contents(
@@ -472,5 +468,3 @@ class MoodleAPIClient:
 
 client = MoodleAPIClient()
 response = client.get_course_contents(courseid=2)
-print(f"Status Code: {response.status_code}")
-print(f"Data: {response.data}")
