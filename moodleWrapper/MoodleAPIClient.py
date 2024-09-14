@@ -1,8 +1,9 @@
-from datetime import datetime
 import os
-from dataclasses import dataclass, fields
-from typing import Optional, Dict, Any, List, Union, Literal
 import urllib.parse
+from dataclasses import dataclass, fields
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Literal, Optional, Union
 
 import requests
 from classes import (
@@ -41,7 +42,7 @@ class MoodleAPIClient:
     def __init__(self, server_url: Optional[str] = None, token: Optional[str] = None):
         # Load environment variables if .env file exists
 
-        if os.path.exists(".env"):
+        if Path.exists(Path(".", ".env")):
             load_dotenv()
 
         self.server_url = server_url or os.getenv("MOODLE_SERVER_URL")
@@ -56,7 +57,7 @@ class MoodleAPIClient:
         self.session = requests.Session()
         self.session.params = {"wstoken": self.token, "moodlewsrestformat": "json"}
 
-    def _format_params(self, params: Dict[str, Any]) -> str:
+    def _format_params(self, params: dict[str, Any]) -> str:
         """
         Format parameters according to Moodle's API expectations.
         """
@@ -66,12 +67,11 @@ class MoodleAPIClient:
                 return "&".join(
                     encode_param(f"{key}[{i}]", v, prefix) for i, v in enumerate(value)
                 )
-            elif isinstance(value, dict):
+            if isinstance(value, dict):
                 return "&".join(
                     encode_param(f"{key}[{k}]", v, prefix) for k, v in value.items()
                 )
-            else:
-                return f"{prefix}{key}={urllib.parse.quote(str(value))}"
+            return f"{prefix}{key}={urllib.parse.quote(str(value))}"
 
         return "&".join(encode_param(k, v) for k, v in params.items())
 
@@ -99,8 +99,8 @@ class MoodleAPIClient:
             )
 
     def _parse_courses_field(
-        self, courses_data: List[Dict[str, Any]]
-    ) -> List[MoodleCourse]:
+        self, courses_data: list[dict[str, Any]]
+    ) -> list[MoodleCourse]:
         parsed_courses = []
         for course_data in courses_data:
             try:
@@ -129,8 +129,8 @@ class MoodleAPIClient:
             except (KeyError, TypeError) as e:
                 print(e)
                 raise ValueError(
-                    f"Error parsing course data: {str(e)}. Course data: {course_data}"
-                )
+                    f"Error parsing course data: {e!s}. Course data: {course_data}"
+                ) from None
         return parsed_courses
 
     def get_site_info(self) -> MoodleAPIResponse:
@@ -139,7 +139,7 @@ class MoodleAPIClient:
         """
         return self._request("core_webservice_get_site_info")
 
-    def _parse_courses(self, courses_data: List[Dict[str, Any]]) -> List[Course]:
+    def _parse_courses(self, courses_data: list[dict[str, Any]]) -> list[Course]:
         parsed_courses = []
         course_fields = {f.name for f in fields(Course)}
         for course_data in courses_data:
@@ -151,8 +151,8 @@ class MoodleAPIClient:
                 parsed_courses.append(Course(**filtered_data))
             except (KeyError, TypeError) as e:
                 raise ValueError(
-                    f"Error parsing course data: {str(e)}. Course data: {filtered_data}"
-                )
+                    f"Error parsing course data: {e!s}. Course data: {filtered_data}"
+                ) from None
         return parsed_courses
 
     def get_categories(
@@ -200,7 +200,7 @@ class MoodleAPIClient:
         except any as e:
             return MoodleAPIResponse(status_code=500, data={"error": str(e)})
 
-    def get_courses(self, ids: Optional[List[int]] = None) -> MoodleAPIResponse:
+    def get_courses(self, ids: Optional[list[int]] = None) -> MoodleAPIResponse:
         """
         Retrieve courses.
 
@@ -218,7 +218,6 @@ class MoodleAPIClient:
                 response.data = self._parse_courses(response.data)
             except ValueError as e:
                 response.error = str(e)
-                print(str(e))
                 response.data = None
 
         return response
@@ -274,10 +273,11 @@ class MoodleAPIClient:
         Retrieve updates in a course since a specific time.
 
         :param courseid: The ID of the course to check for updates.
-        :param since: A datetime object representing the time since when to check for updates.
-                      If None, it will check for all updates.
+        :param since: A datetime object representing the time since when to check
+                      for updates. If None, it will check for all updates.
         :param filter: A list of areas to filter the updates by.
-                       Possible values: 'configuration', 'fileareas', 'completion', 'gradeitems', 'reset'
+                       Possible values: 'configuration', 'fileareas',
+                       'completion', 'gradeitems', 'reset'
         :return: MoodleAPIResponse containing course update data.
         """
         params = {"courseid": courseid, "since": int(since.timestamp()) if since else 0}
@@ -315,8 +315,8 @@ class MoodleAPIClient:
 
     def get_assignments(
         self,
-        courseids: Optional[List[int]] = None,
-        capabilities: Optional[List[str]] = None,
+        courseids: Optional[list[int]] = None,
+        capabilities: Optional[list[str]] = None,
         includenotenrolledcourses: int = 0,
     ) -> MoodleAPIResponse:
         """
@@ -325,8 +325,9 @@ class MoodleAPIClient:
         :param courseids: Optional list of course ids. If empty returns all the courses
                           the user is enrolled in.
         :param capabilities: Optional list of capabilities used to filter courses.
-        :param includenotenrolledcourses: Whether to return courses that the user can see
-                                          even if is not enrolled in. This requires the parameter courseids to not be empty.
+        :param includenotenrolledcourses: Whether to return courses that the user can
+                                          see even if is not enrolled in. This requires
+                                          the parameter courseids to not be empty.
         :return: MoodleAPIResponse containing assignments data.
         """
         params = {"includenotenrolledcourses": includenotenrolledcourses}
@@ -357,7 +358,7 @@ class MoodleAPIClient:
                             **{
                                 k: v
                                 for k, v in assign_data.items()
-                                if k != "configs" and k != "introattachments"
+                                if k not in ("configs", "introattachments")
                             },
                             configs=configs,
                             introattachments=intro_attachments,
