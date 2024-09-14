@@ -1,12 +1,17 @@
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from telegram import CallbackQuery, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
 from telegram.ext import CommandHandler
 
+from moodleWrapper.helpers import parsed_categories
 from src import constants, messages, queries
 from src.customcontext import CustomContext
 from src.messages import bold
 from src.models import Course, RoleName, Status
+from src.models.program import Program
+from src.models.program_semester import ProgramSemester
+from src.models.semester import Semester
 from src.utils import build_menu, roles, session
 
 # ------------------------------- Callbacks ---------------------------
@@ -192,9 +197,32 @@ async def help(update: Update, context: CustomContext, session: Session) -> None
     await update.message.reply_html(message)
 
 
-async def echo(update: Update, context: CustomContext) -> None:
-    """Echo the user message."""
-    await update.message.reply_text(update.message.text)
+@roles(RoleName.USER)
+@session
+async def initialize_categories(
+    update: Update, context: CustomContext, session: Session
+) -> None:
+    categories: dict[str, list[dict]] = parsed_categories()
+    for program_name, semesters in categories.items():
+        program = Program(program_name, program_name, 10, True)
+        session.add(program)
+        session.flush()
+        for semester in semesters:
+            sem = session.scalar(
+                select(Semester).where(Semester.number == semester["semester"])
+            )
+            program_semester = ProgramSemester(
+                program=program,
+                semester=sem,
+                moodle_id=semester["id"],
+                available=True,
+            )
+            session.add(program_semester)
+        session.flush()
+
+        categories = session.scalars(select(ProgramSemester)).all()
+
+    await update.message.reply_text("Initialized with moodle successfully.")
 
 
 # ------------------------------- CommandHandlers ---------------------------
@@ -205,5 +233,6 @@ handlers = [
     CommandHandler(cmd.courses.command, user_course_list),
     CommandHandler(cmd.settings.command, settings),
     CommandHandler(cmd.pending.command, request_list),
+    CommandHandler(cmd.initialize.command, initialize_categories),
     CommandHandler(["help", "start"], help),
 ]

@@ -43,7 +43,7 @@ def parsed_categories():
                 if key in cat.name.lower():
                     semester_number: int = number
             number = (level_number * 2) - (semester_number % 2)
-            parsed[grand.name].append(number)
+            parsed[grand.name].append({"semester": number, "id": cat.id})
 
         id_node[cat.id] = cat
 
