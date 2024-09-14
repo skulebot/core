@@ -29,9 +29,12 @@ def parsed_categories():
     for cat in categories_sorted:
         path = cat.path[1:].split("/")
         if len(path) == 1:
-            parsed[cat.name] = []
+            parsed[cat.name] = {}
+            parsed[cat.name]["name"] = cat.name
+            parsed[cat.name]["id"] = cat.id
+            parsed[cat.name]["semesters"] = []
         elif len(path) == 2:
-            parent = id_node[cat.parent]
+            pass
         elif len(path) == 3:
             parent = id_node[cat.parent]
             grand = id_node[parent.parent]
@@ -43,7 +46,7 @@ def parsed_categories():
                 if key in cat.name.lower():
                     semester_number: int = number
             number = (level_number * 2) - (semester_number % 2)
-            parsed[grand.name].append({"semester": number, "id": cat.id})
+            parsed[grand.name]["semesters"].append({"number": number, "id": cat.id})
 
         id_node[cat.id] = cat
 

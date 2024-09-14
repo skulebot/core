@@ -5,13 +5,19 @@ from telegram.constants import ParseMode
 from telegram.ext import CommandHandler
 
 from moodleWrapper.helpers import parsed_categories
+from moodleWrapper.MoodleAPIClient import client
 from src import constants, messages, queries
 from src.customcontext import CustomContext
 from src.messages import bold
-from src.models import Course, RoleName, Status
-from src.models.program import Program
-from src.models.program_semester import ProgramSemester
-from src.models.semester import Semester
+from src.models import (
+    Course,
+    Program,
+    ProgramSemester,
+    ProgramSemesterCourse,
+    RoleName,
+    Semester,
+    Status,
+)
 from src.utils import build_menu, roles, session
 
 # ------------------------------- Callbacks ---------------------------
@@ -202,14 +208,23 @@ async def help(update: Update, context: CustomContext, session: Session) -> None
 async def initialize_categories(
     update: Update, context: CustomContext, session: Session
 ) -> None:
+    session.query(ProgramSemesterCourse).delete()
+    session.query(ProgramSemester).delete()
+    session.query(Program).delete()
+    session.query(Course).delete()
+    session.flush()
     categories: dict[str, list[dict]] = parsed_categories()
-    for program_name, semesters in categories.items():
-        program = Program(program_name, program_name, 10, True)
+    # TODO: Check if we've already done the initialization before
+    for category in categories.values():
+        semesters = category["semesters"]
+        name = category["name"]
+        moodle_id = category["id"]
+        program = Program(name, name, 10, True, moodle_id)
         session.add(program)
         session.flush()
         for semester in semesters:
             sem = session.scalar(
-                select(Semester).where(Semester.number == semester["semester"])
+                select(Semester).where(Semester.number == semester["number"])
             )
             program_semester = ProgramSemester(
                 program=program,
@@ -218,10 +233,23 @@ async def initialize_categories(
                 available=True,
             )
             session.add(program_semester)
-        session.flush()
+            session.flush()
+            courses = client.get_courses_by_field(
+                "category", program_semester.moodle_id
+            ).data["courses"]
+            for c in courses:
+                course = Course(en_name=c.fullname, ar_name=c.fullname)
+                session.add(course)
+                session.flush()
+                psm = ProgramSemesterCourse(
+                    program_id=program_semester.program.id,
+                    semester_id=program_semester.semester_id,
+                    course_id=course.id,
+                )
+                session.add(psm)
+                session.flush()
 
-        categories = session.scalars(select(ProgramSemester)).all()
-
+    session.flush()
     await update.message.reply_text("Initialized with moodle successfully.")
 
 
