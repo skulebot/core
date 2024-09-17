@@ -8,7 +8,7 @@ from typing import Any, Literal, Optional, Union
 import requests
 from dotenv import load_dotenv
 
-from .classes import (
+from classes import (
     Assignment,
     AssignmentConfig,
     AssignmentFile,
@@ -36,7 +36,7 @@ from .classes import (
 @dataclass
 class MoodleAPIResponse:
     status_code: int
-    data: Any
+    data: Union[list[Assignment], list[CourseSection], list[Category], any]
 
 
 class MoodleAPIClient:
@@ -256,14 +256,16 @@ class MoodleAPIClient:
         courseid: int,
         since: Optional[datetime] = None,
         filter: Optional[
-            Literal[
-                "gradeitems",
-                "outcomes",
-                "comments",
-                "ratings",
-                "completion",
-                "fileareas",
-                "configuration",
+            list[
+                Literal[
+                    "gradeitems",
+                    "outcomes",
+                    "comments",
+                    "ratings",
+                    "completion",
+                    "fileareas",
+                    "configuration",
+                ]
             ]
         ] = None,
     ) -> MoodleAPIResponse:
@@ -284,7 +286,7 @@ class MoodleAPIClient:
             params["filter"] = filter
 
         response = self._request("core_course_get_updates_since", params)
-
+        print(response.data)
         try:
             if response.status_code == 200:
                 instances = []
