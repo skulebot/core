@@ -5,9 +5,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from telegram import InputMedia, Update
 
-from src import constants
+from src import constants, messages
 from src.customcontext import CustomContext
-from src.models import Enrollment, File, HasNumber, RefFilesMixin, SingleFile
+from src.models import Enrollment, File, HasNumber, RefFilesMixin, Review, SingleFile
 from src.models.material import __classes__, get_material_class
 from src.utils import build_media_group, session
 
@@ -36,6 +36,9 @@ async def send(
 
     material_type = material_type or context.match.group("material_type")
     MaterialClass = get_material_class(material_type)
+    material_id = context.match.group("material_id")
+    material = session.get(MaterialClass, material_id)
+    _ = context.gettext
 
     files = []
 
@@ -77,7 +80,18 @@ async def send(
         albums = build_media_group(
             [InputMedia(file.type, file.telegram_id) for file in group_files]
         )
-        for album in albums:
-            await query.message.reply_media_group(media=album)
+        caption = None
+        for i, album in enumerate(albums):
+            if isinstance(material, Review):
+                caption = messages.material_title_text(
+                    context.match, material, context.language_code
+                )
+                caption += (
+                    "\n" + _("{} of {}").format(i + 1, len(albums))
+                    if len(albums) > 1
+                    else ""
+                )
+
+            await query.message.reply_media_group(media=album, caption=caption)
 
     return constants.ONE
