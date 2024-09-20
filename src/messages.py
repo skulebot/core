@@ -216,7 +216,7 @@ def material_title_text(
     if isinstance(material, SingleFile):
         return m_type + " " + str(material.file.name)
     if isinstance(material, Review):
-        return +str(material.get_name(language_code)) + (
+        return str(material.get_name(language_code)) + (
             " " + str(d.year) if (d := material.date) else ""
         )
     return None
