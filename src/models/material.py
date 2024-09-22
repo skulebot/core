@@ -194,6 +194,7 @@ REVIEW_TYPES = {
     "test": {"en_name": "Test", "ar_name": "اختبار"},
     "quiz": {"en_name": "Quiz", "ar_name": "كويز"},
     "assignment": {"en_name": "Assignment", "ar_name": "تسليم"},
+    "unknown": {"en_name": "Unknown", "ar_name": "مجهول"},
 }
 
 
