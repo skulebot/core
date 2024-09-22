@@ -193,6 +193,7 @@ REVIEW_TYPES = {
     "midterm": {"en_name": "Midterm", "ar_name": "نصفي"},
     "test": {"en_name": "Test", "ar_name": "اختبار"},
     "quiz": {"en_name": "Quiz", "ar_name": "كويز"},
+    "assignment": {"en_name": "Assignment", "ar_name": "تسليم"},
 }
 
 
