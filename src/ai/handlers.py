@@ -1,4 +1,4 @@
-from google.generativeai.protos import Blob, Content, FunctionResponse, Part
+from google.generativeai.protos import Content, FunctionResponse, Part
 from google.generativeai.types.generation_types import GenerateContentResponse
 from google.protobuf.struct_pb2 import Struct
 from sqlalchemy.orm import Session
@@ -68,14 +68,6 @@ async def handler(update: Update, context: CustomContext, session: Session) -> N
         bytes_ = bytes(await file.download_as_bytearray())
         text = "?"
         contents.append({"mime_type": voice.mime_type, "data": bytes_})
-        # chat.history.append(
-        #     {
-        #         "role": "user",
-        #         "parts": [
-        #             Part(inline_data=Blob(mime_type=voice.mime_type, data=bytes_))
-        #         ],
-        #     }
-        # )
 
     response = chat.send_message(contents)
 

@@ -102,23 +102,6 @@ async def query_materials(
     return (list(map(str, materials)), should_send_result)
 
 
-# @session
-# async def send_materials(
-#     args: Struct, update: Update, context: CustomContext, session: SessionType
-# ):
-#     material_ids = args["material_ids"]
-#     type_ = args["type_"]
-#     if type_ in mapper:
-#         type_ = mapper[type_]
-
-#     MaterialClass = get_material_class(type_)
-#     materials = session.scalars(
-#         select(MaterialClass).where(MaterialClass.id.in_(material_ids))
-#     ).all()
-#     for m in materials:
-#         await send(update, context, session, m)
-
-
 async def send(
     update: Update,
     context: CustomContext,
@@ -178,7 +161,6 @@ async def send(
 
 Functions = {
     "query_materials": query_materials,
-    # "send_materials": send_materials,
 }
 
 chats: dict[int, genai.ChatSession] = {}
@@ -225,8 +207,8 @@ def create_decalarations(courses: list[str]):
                                 "number": genai.protos.Schema(
                                     type=genai.protos.Type.INTEGER,
                                     description="the order of the material. set only"
-                                    " when the `type_` in ['lecture', 'tutorial', 'lab',"
-                                    " 'assignment']",
+                                    " when the `type_` in ['lecture', 'tutorial',"
+                                    " 'lab', 'assignment']",
                                     nullable=True,
                                 ),
                                 "type_": genai.protos.Schema(
@@ -241,41 +223,12 @@ def create_decalarations(courses: list[str]):
                                     " when the `type_` property is `exam`.",
                                     nullable=True,
                                 ),
-                                # "date": genai.protos.Schema(
-                                #     type=genai.protos.Type.INTEGER,
-                                #     description="Default `None` unless explicity specified."
-                                #     "set only when the `type_` property is "
-                                #     "review.",
-                                #     nullable=True,
-                                # ),
                             },
                         ),
                     },
                     required=["course_name", "type_", "should_send_result"],
                 ),
             ),
-            # genai.protos.FunctionDeclaration(
-            #     name="send_materials",
-            #     description="send material files to user.",
-            #     parameters=genai.protos.Schema(
-            #         type=genai.protos.Type.OBJECT,
-            #         properties={
-            #             "material_ids": genai.protos.Schema(
-            #                 type=genai.protos.Type.ARRAY,
-            #                 items=genai.protos.Schema(
-            #                     type=genai.protos.Type.NUMBER,
-            #                 ),
-            #                 description="the ids of the materials to send.",
-            #             ),
-            #             "type_": genai.protos.Schema(
-            #                 type=genai.protos.Type.STRING,
-            #                 enum=HAS_NUMBER,
-            #                 description="the type of the material.",
-            #             ),
-            #         },
-            #         required=["material_ids", "type_"],
-            #     ),
-            # ),
         ]
     )
 
