@@ -205,6 +205,16 @@ def build_media_group(
 
 
 async def set_my_commands(bot: Bot, user: User):
+    allowed_users = [
+        1645307364,
+        657164321,
+        561728157,
+        444371409,
+        5351556147,
+        1004861825,
+    ]
+    is_allowed = user.telegram_id in allowed_users
+
     role_names = [r.name for r in user.roles]
     role_names = {r.name for r in user.roles}
     translation = user_locale(user.language_code)
@@ -220,13 +230,21 @@ async def set_my_commands(bot: Bot, user: User):
             scope=BotCommandScopeChat(user.chat_id),
         )
     elif role_names == {RoleName.USER, RoleName.STUDENT}:
+        commands = commands.student_commands()
+        cmds = [
+            c for c in commands if c.command == "ai" and is_allowed or c.command != "ai"
+        ]
         await bot.set_my_commands(
-            commands.student_commands(),
+            cmds,
             scope=BotCommandScopeChat(user.chat_id),
         )
     elif role_names == {RoleName.USER, RoleName.STUDENT, RoleName.EDITOR}:
+        commands = commands.editor_commands()
+        cmds = [
+            c for c in commands if c.command == "ai" and is_allowed or c.command != "ai"
+        ]
         await bot.set_my_commands(
-            commands.editor_commands(),
+            cmds,
             scope=BotCommandScopeChat(user.chat_id),
         )
 

@@ -197,6 +197,33 @@ async def help(update: Update, context: CustomContext, session: Session) -> None
     await update.message.reply_html(message)
 
 
+@roles(RoleName.STUDENT)
+@session
+async def ai(update: Update, context: CustomContext, session: Session) -> None:
+    """Runs with Message.text `/ai`."""
+
+    allowed_users = [
+        1645307364,
+        657164321,
+        561728157,
+        444371409,
+        5351556147,
+        1004861825,
+    ]
+    if update.effective_user.id not in allowed_users:
+        return
+
+    ai_active = a if (a := context.user_data.get("ai_active")) is not None else False
+    context.user_data["ai_active"] = not ai_active
+
+    _ = context.gettext
+    message = (
+        _("AI activated") if context.user_data["ai_active"] else _("AI deactivated")
+    )
+
+    await update.message.reply_html(message)
+
+
 async def echo(update: Update, context: CustomContext) -> None:
     """Echo the user message."""
     await update.message.reply_text(update.message.text)
@@ -210,5 +237,6 @@ handlers = [
     CommandHandler(cmd.courses.command, user_course_list),
     CommandHandler(cmd.settings.command, settings),
     CommandHandler(cmd.pending.command, request_list),
+    CommandHandler(cmd.ai.command, ai),
     CommandHandler(["help", "start"], help),
 ]

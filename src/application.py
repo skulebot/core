@@ -17,6 +17,7 @@ from telegram.ext import (
 )
 
 from src import commands, constants, conversations, jobs, queries
+from src.ai import handlers as aihandler
 from src.config import Config, ProductionConfig
 from src.customcontext import CustomContext
 from src.database import Session
@@ -87,6 +88,9 @@ def register_handlers(application: Application):
     # Error Handler
     # Courtesy of @roolsbot
     application.add_error_handler(error_handler)
+
+    # Ai Handler
+    application.add_handler(aihandler.aihandler, 99)
 
 
 def schedule_jobs(application: Application):
