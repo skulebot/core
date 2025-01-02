@@ -92,11 +92,13 @@ def schedule_jobs(application: Application):
     job_queue = application.job_queue
     zone = ZoneInfo("Africa/Khartoum")
 
-    # Assignment deadline reminders
     with Session.begin() as session:
         root = queries.user(session=session, telegram_id=Config.ROOTIDS[0])
+
         if root is None:
             return
+
+        # Assignment deadline reminders
         for point in [
             time(hour=6, tzinfo=zone),
             time(hour=18, tzinfo=zone),
@@ -112,6 +114,19 @@ def schedule_jobs(application: Application):
                 user_id=root.telegram_id,
                 chat_id=root.chat_id,
             )
+
+        # moodle sync job
+        JOB_NAME = f"MOODLE_SYNC_{point}"
+        jobs.remove_job_if_exists(
+            JOB_NAME, CustomContext(application, root.chat_id, root.telegram_id)
+        )
+        job_queue.run_daily(
+            jobs.moodel_sync,
+            time(hour=6, tzinfo=zone),
+            name=JOB_NAME,
+            user_id=root.telegram_id,
+            chat_id=root.chat_id,
+        )
 
 
 def run(application: Application):

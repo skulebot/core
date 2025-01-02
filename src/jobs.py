@@ -1,19 +1,35 @@
 import contextlib
 import datetime
+import re
+from typing import Union
 from zoneinfo import ZoneInfo
 
 from babel.dates import format_timedelta
 from sqlalchemy import and_, select
-from telegram import InlineKeyboardMarkup
+from sqlalchemy.orm import Session as SessionType
+from telegram import InlineKeyboardMarkup, InputFile
 from telegram.error import Forbidden
 
-from src import constants
+from moodleWrapper.classes import CourseModule, CourseSection
+from moodleWrapper.MoodleAPIClient import client
+from src import constants, queries
 from src.buttons import ar_buttons, en_buttons
 from src.customcontext import CustomContext
 from src.database import Session
 from src.models import Assignment
 from src.models.course import Course
 from src.models.enrollment import Enrollment
+from src.models.file import File
+from src.models.material import (
+    HasNumber,
+    Lecture,
+    Material,
+    MaterialType,
+    Reference,
+    RefFilesMixin,
+    SingleFile,
+    get_material_class,
+)
 from src.models.program_semester import ProgramSemester
 from src.models.program_semester_course import ProgramSemesterCourse
 from src.models.user import User
@@ -176,3 +192,146 @@ async def send_reminder(context: CustomContext) -> None:
         await context.bot.send_message(
             job.chat_id, text=_("Done sending reminders"), disable_notification=True
         )
+
+
+async def get_class_name(name: str):
+    for type_ in MaterialType:
+        if type_ in name.lower():
+            return type_
+    return None
+
+
+async def handle_module(
+    session: SessionType,
+    module: CourseModule,
+    material: Union[Material, list[Material]],
+    context: CustomContext,
+):
+    job = context.job
+    exists = session.scalar(select(File).where(File.moodle_id == module.id))
+    if exists:
+        return False
+    for content in module.contents:
+        file_url = content.fileurl + f"&token={client.token}"
+        data = client.session.get(file_url).content
+        input_file = InputFile(data, content.filename)
+        mimetype = re.sub("/.*", "", input_file.mimetype)
+
+        type_ = None
+        message = None
+        file_id = None
+        timeout = 60 * 10
+        if mimetype == "video":
+            type_ = "video"
+            message = await context.bot.send_video(
+                job.chat_id, input_file, write_timeout=timeout, read_timeout=timeout
+            )
+            file_id, name = message.video.file_id, message.video.file_name
+        elif mimetype == "image":
+            type_ = "photo"
+            message = await context.bot.send_photo(
+                job.chat_id, input_file, write_timeout=timeout, read_timeout=timeout
+            )
+            file_id, name = message.photo[0].file_id, message.photo[0].file_id
+        else:
+            type_ = "document"
+            message = await context.bot.send_document(
+                job.chat_id, input_file, write_timeout=timeout, read_timeout=timeout
+            )
+            file_id, name = message.document.file_id, message.document.file_name
+        if message and file_id and name and type_:
+            f = File(
+                name=name,
+                telegram_id=file_id,
+                type=type_,
+                moodle_id=module.id,
+                uploader=session.get(User, context.user_data["id"]),
+            )
+            if isinstance(material, RefFilesMixin):
+                material.files.append(f)
+            if isinstance(material, SingleFile):
+                material.file = f
+            await message.delete()
+    return True
+
+
+async def handle_numbered(
+    session: SessionType,
+    section: CourseSection,
+    material_c: Lecture,
+    course_id: int,
+    context: CustomContext,
+):
+    year = queries.academic_year(session, most_recent=True)
+    name = section.name
+    reg = re.compile(r"\d+")
+    m = reg.search(name)
+    if m is None:
+        return
+    number = m.group()
+
+    material = material_c(
+        course_id=course_id,
+        academic_year_id=year.id,
+        number=number,
+        published=True,
+        moodle_id=section.id,
+    )
+
+    success = False
+    for module in section.modules:
+        await handle_module(session, module, material, context)
+    if success:
+        session.add(material)
+
+
+async def handle_single_file(
+    session: SessionType,
+    section: CourseSection,
+    material_c: Reference,
+    course_id: int,
+    context: CustomContext,
+):
+    year = queries.academic_year(session, most_recent=True)
+    for module in section.modules:
+        material = material_c(
+            course_id=course_id,
+            academic_year_id=year.id,
+            published=True,
+            moodle_id=section.id,
+        )
+        success = await handle_module(session, module, material, context)
+
+        if success:
+            session.add(material)
+
+
+async def moodel_sync(context: CustomContext):
+    with Session.begin() as session:
+        courses = session.scalars(select(Course)).all()
+        for course in courses:
+            res = client.get_course_contents(course.moodle_id)
+            sections: CourseSection = res.data
+            for section in sections:
+                name: str = section.name
+                if name == "General":
+                    continue
+                type_ = await get_class_name(name)
+                if type_ is None:
+                    continue
+                exists = session.scalar(
+                    select(Material).filter(Material.moodle_id == section.id)
+                )
+                if exists:
+                    continue
+                material_c = get_material_class(type_)
+                if issubclass(material_c, HasNumber) and material_c != Assignment:
+                    await handle_numbered(
+                        session, section, material_c, course.id, context
+                    )
+                    continue
+                if issubclass(material_c, SingleFile):
+                    await handle_single_file(
+                        session, section, material_c, course.id, context
+                    )
+                    continue
