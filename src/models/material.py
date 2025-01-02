@@ -57,6 +57,7 @@ class Material(Base):
         ForeignKey("academic_year.id"), nullable=False
     )
     published: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    moodle_id: Mapped[int] = mapped_column(Integer, nullable=True)
 
     course: Mapped["Course"] = relationship(init=False)
     academic_year: Mapped["AcademicYear"] = relationship(init=False)
