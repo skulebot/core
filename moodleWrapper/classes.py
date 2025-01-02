@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 
 @dataclass
@@ -155,20 +155,20 @@ class Warning:
 class UpdateItem:
     name: str
     timeupdated: Optional[int] = None
-    itemids: Optional[List[int]] = None
+    itemids: Optional[list[int]] = None
 
 
 @dataclass
 class Instance:
     contextlevel: str
     id: int
-    updates: List[UpdateItem]
+    updates: list[UpdateItem]
 
 
 @dataclass
 class CourseUpdatesResponse:
-    instances: List[Instance]
-    warnings: Optional[List[Warning]] = None
+    instances: list[Instance]
+    warnings: Optional[list[Warning]] = None
 
 
 @dataclass
@@ -220,13 +220,13 @@ class Assignment:
     markingallocation: int
     requiresubmissionstatement: int
     preventsubmissionnotingroup: int
-    configs: List[AssignmentConfig]
+    configs: list[AssignmentConfig]
     intro: Optional[str] = None
     introfiles: Optional[AssignmentFile] = None
     introformat: Optional[int] = None
     timelimit: Optional[int] = None
     submissionattachments: Optional[int] = None
-    introattachments: Optional[List[AssignmentFile]] = None
+    introattachments: Optional[list[AssignmentFile]] = None
 
 
 @dataclass
@@ -235,13 +235,13 @@ class CourseAssignments:
     fullname: str
     shortname: str
     timemodified: int
-    assignments: List[Assignment]
+    assignments: list[Assignment]
 
 
 @dataclass
 class AssignmentsResponse:
-    courses: List[CourseAssignments]
-    warnings: Optional[List[Dict[str, Any]]] = None
+    courses: list[CourseAssignments]
+    warnings: Optional[list[dict[str, Any]]] = None
 
 
 @dataclass
@@ -276,7 +276,7 @@ class ModuleContent:
     content: Optional[str] = None
     isexternalfile: Optional[int] = None
     repositorytype: Optional[str] = None
-    tags: Optional[List[ContentTag]] = None
+    tags: Optional[list[ContentTag]] = None
 
 
 @dataclass
@@ -289,7 +289,7 @@ class ModuleCompletionData:
     isautomatic: int
     istrackeduser: int
     uservisible: int
-    details: List[Dict[str, Any]]
+    details: list[dict[str, Any]]
     isoverallcomplete: Optional[int] = None
 
 
@@ -329,9 +329,9 @@ class CourseModule:
     customdata: Optional[str] = None
     completion: Optional[int] = None
     completiondata: Optional[ModuleCompletionData] = None
-    contents: Optional[List[ModuleContent]] = None
-    contentsinfo: Optional[Dict[str, Any]] = None
-    dates: Optional[List[ModuleDate]] = None
+    contents: Optional[list[ModuleContent]] = None
+    contentsinfo: Optional[dict[str, Any]] = None
+    dates: Optional[list[ModuleDate]] = None
 
 
 @dataclass
@@ -345,5 +345,5 @@ class CourseSection:
     visible: Optional[int]
     hiddenbynumsections: Optional[int]
     uservisible: Optional[int]
-    modules: List[CourseModule]
+    modules: list[CourseModule]
     availabilityinfo: Optional[str] = None

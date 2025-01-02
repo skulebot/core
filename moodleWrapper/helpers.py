@@ -1,12 +1,13 @@
 from datetime import datetime
-from typing import Any, Dict, List
-from MoodleAPIClient import MoodleAPIClient
-from classes import CourseModule, UpdateItem
+from typing import Any
+
+from moodleWrapper.classes import CourseModule, UpdateItem
+from moodleWrapper.MoodleAPIClient import MoodleAPIClient
 
 
 def check_course_updates(
-    course_ids: List[int], since: datetime
-) -> Dict[int, List[Dict[str, Any]]]:
+    course_ids: list[int], since: datetime
+) -> dict[int, list[dict[str, Any]]]:
     updates = {}
     for course_id in course_ids:
         course_updates = _check_single_course(course_id, since=since)
@@ -15,7 +16,7 @@ def check_course_updates(
     return updates
 
 
-def _check_single_course(course_id: int, since: datetime) -> List[Dict[str, Any]]:
+def _check_single_course(course_id: int, since: datetime) -> list[dict[str, Any]]:
     response = MoodleAPIClient().get_course_updates_since(
         courseid=course_id, since=since
     )
@@ -32,7 +33,7 @@ def _check_single_course(course_id: int, since: datetime) -> List[Dict[str, Any]
     return course_updates
 
 
-def _get_update_info(course_id: int, update: UpdateItem) -> Dict[str, Any]:
+def _get_update_info(course_id: int, update: UpdateItem) -> dict[str, Any]:
     response = MoodleAPIClient().get_course_contents(courseid=course_id)
     if response.status_code != 200:
         return {}
@@ -41,7 +42,6 @@ def _get_update_info(course_id: int, update: UpdateItem) -> Dict[str, Any]:
             if (
                 update.itemids and module.id == update.itemids[0]
             ):  # Assuming the first itemid is the module id
-                print(module)
                 return {
                     "type": _determine_update_type(module),
                     "name": module.name,
@@ -130,15 +130,11 @@ def parsed_categories():
 
 
 check_course_updates([3, 2], datetime(2024, 9, 8))
-from datetime import datetime
-from typing import Any, Dict, List
-from MoodleAPIClient import MoodleAPIClient
-from classes import CourseModule, UpdateItem
 
 
 def check_course_updates(
-    course_ids: List[int], since: datetime
-) -> Dict[int, List[Dict[str, Any]]]:
+    course_ids: list[int], since: datetime
+) -> dict[int, list[dict[str, Any]]]:
     updates = {}
     for course_id in course_ids:
         course_updates = _check_single_course(course_id, since=since)
@@ -147,7 +143,7 @@ def check_course_updates(
     return updates
 
 
-def _check_single_course(course_id: int, since: datetime) -> List[Dict[str, Any]]:
+def _check_single_course(course_id: int, since: datetime) -> list[dict[str, Any]]:
     response = MoodleAPIClient().get_course_updates_since(
         courseid=course_id, since=since
     )
@@ -164,7 +160,7 @@ def _check_single_course(course_id: int, since: datetime) -> List[Dict[str, Any]
     return course_updates
 
 
-def _get_update_info(course_id: int, update: UpdateItem) -> Dict[str, Any]:
+def _get_update_info(course_id: int, update: UpdateItem) -> dict[str, Any]:
     response = MoodleAPIClient().get_course_contents(courseid=course_id)
     if response.status_code != 200:
         return {}
@@ -173,7 +169,6 @@ def _get_update_info(course_id: int, update: UpdateItem) -> Dict[str, Any]:
             if (
                 update.itemids and module.id == update.itemids[0]
             ):  # Assuming the first itemid is the module id
-                print(module)
                 return {
                     "type": _determine_update_type(module),
                     "name": module.name,

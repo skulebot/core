@@ -8,7 +8,7 @@ from typing import Any, Literal, Optional, Union
 import requests
 from dotenv import load_dotenv
 
-from classes import (
+from moodleWrapper.classes import (
     Assignment,
     AssignmentConfig,
     AssignmentFile,
@@ -286,7 +286,6 @@ class MoodleAPIClient:
             params["filter"] = filter
 
         response = self._request("core_course_get_updates_since", params)
-        print(response.data)
         try:
             if response.status_code == 200:
                 instances = []
@@ -469,4 +468,3 @@ class MoodleAPIClient:
 
 
 client = MoodleAPIClient()
-response = client.get_course_contents(courseid=2)
