@@ -237,7 +237,7 @@ async def initialize_categories(
                 "category", program_semester.moodle_id
             ).data["courses"]
             for c in courses:
-                course = Course(en_name=c.fullname, ar_name=c.fullname)
+                course = Course(en_name=c.fullname, ar_name=c.fullname, moodle_id=c.id)
                 session.add(course)
                 session.flush()
                 psm = ProgramSemesterCourse(
