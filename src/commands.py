@@ -208,11 +208,6 @@ async def help(update: Update, context: CustomContext, session: Session) -> None
 async def initialize_categories(
     update: Update, context: CustomContext, session: Session
 ) -> None:
-    session.query(ProgramSemesterCourse).delete()
-    session.query(ProgramSemester).delete()
-    session.query(Program).delete()
-    session.query(Course).delete()
-    session.flush()
     categories: dict[str, list[dict]] = parsed_categories()
     # TODO: Check if we've already done the initialization before
     for category in categories.values():
@@ -226,6 +221,10 @@ async def initialize_categories(
             sem = session.scalar(
                 select(Semester).where(Semester.number == semester["number"])
             )
+            if sem is None:
+                raise ValueError(
+                    f"No semester in db corresponds to semester {semester['number']}"
+                )
             program_semester = ProgramSemester(
                 program=program,
                 semester=sem,
