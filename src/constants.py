@@ -116,6 +116,7 @@ class Commands:
         return (
             self.courses,
             self.settings,
+            self.ai,
             self.enrollments2,
             self.editor1,
         )
@@ -124,6 +125,7 @@ class Commands:
         return (
             self.courses,
             self.updatematerials,
+            self.ai,
             self.settings,
             self.enrollments2,
             self.editor2,
@@ -184,6 +186,10 @@ class Commands:
     @property
     def editor2(self):
         return BotCommand("publish", self._("/editor2 description"))
+
+    @property
+    def ai(self):
+        return BotCommand("ai", self._("/ai description"))
 
     @property
     def users(self):

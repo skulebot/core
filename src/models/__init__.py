@@ -1,4 +1,5 @@
 __all__ = (
+    "REVIEW_TYPES",
     "AcademicYear",
     "AccessRequest",
     "Assignment",
@@ -44,6 +45,7 @@ from .department import Department
 from .enrollment import Enrollment
 from .file import File
 from .material import (
+    REVIEW_TYPES,
     Assignment,
     HasNumber,
     Lab,
