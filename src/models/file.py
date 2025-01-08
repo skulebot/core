@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -17,6 +17,9 @@ class File(Base):
     name: Mapped[str] = mapped_column(String(150), nullable=False)
     type: Mapped[str] = mapped_column(String(30), nullable=False)
     source: Mapped[str] = mapped_column(String(200), nullable=True, default=None)
+    moodle_id: Mapped[int] = mapped_column(
+        Integer, nullable=True, default=None, repr=True
+    )
 
     material_id: Mapped[int] = mapped_column(
         ForeignKey("material.id"),

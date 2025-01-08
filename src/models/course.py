@@ -19,6 +19,7 @@ class Course(Base):
     en_code: Mapped[str] = mapped_column(String(30), nullable=True, default=None)
     ar_code: Mapped[str] = mapped_column(String(30), nullable=True, default=None)
     credits: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
+    moodle_id: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
     department_id: Mapped[int] = mapped_column(
         ForeignKey("department.id"),
         default=None,

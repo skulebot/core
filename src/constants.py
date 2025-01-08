@@ -109,6 +109,7 @@ class Commands:
             self.years,
             self.users,
             self.broadcast,
+            self.initialize,
         )
 
     def student_commands(self):
@@ -191,6 +192,10 @@ class Commands:
     @property
     def broadcast(self):
         return BotCommand("broadcast", self._("/broadcast description"))
+
+    @property
+    def initialize(self):
+        return BotCommand("initialize", self._("/broadcast description"))
 
 
 COMMANDS = Commands()
